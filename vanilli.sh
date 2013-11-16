@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('./vanilli.js').startServer({ apiPort: 8081, vanilliPort: 8082 });
+require('./lib/vanilli.js').startServer({ apiPort: 8081, vanilliPort: 8082 });

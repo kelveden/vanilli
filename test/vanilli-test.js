@@ -1,5 +1,5 @@
 var expect = require('chai').expect,
-    vanilli = require('../vanilli.js'),
+    vanilli = require('../lib/vanilli.js'),
     restify = require('restify'),
     portScanner = require('./lib/port-scanner.js'),
     log = require('bunyan').createLogger({
