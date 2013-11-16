@@ -25,14 +25,14 @@ describe('Vanilli', function () {
         var apiClient;
 
         before(function (done) {
-            vanilliHelper.start(log, function () {
+            vanilliHelper.startVanilli(log, function () {
                 apiClient = vanilliHelper.createApiClient();
                 done();
             });
         });
 
         after(function () {
-            vanilliHelper.stop();
+            vanilliHelper.stopVanilli();
         });
 
         it('should be pingable', function (done) {
@@ -43,24 +43,68 @@ describe('Vanilli', function () {
         });
     });
 
-    describe('Server', function () {
-        var vanilliClient;
+    describe('expectations', function () {
+        var vanilliClient, apiClient;
 
         before(function (done) {
-            vanilliHelper.start(log, function () {
+            vanilliHelper.startVanilli(log, function () {
+                apiClient = vanilliHelper.createApiClient();
                 vanilliClient = vanilliHelper.createVanilliClient();
                 done();
             });
         });
 
         after(function () {
-            vanilliHelper.stop();
+            vanilliHelper.stopVanilli();
         });
 
-        it('should be pingable', function (done) {
-            vanilliClient.get('/ping', function (err, req, res, result) {
-                expect(result.ping).to.equal("pong");
+        beforeEach(function (done) {
+            apiClient.del('/', function () {
                 done();
+            });
+        });
+
+        it('cannot be setup without a url', function (done) {
+            apiClient.post('/expect', { respondWith: {
+                entity: { something: "else" },
+                "Content-Type": "application/json"
+            }}, function (err, req, res) {
+                expect(res.statusCode).to.equal(400);
+                expect(res.body).to.equal("\"Url must be specified.\"");
+                done();
+            });
+        });
+
+        it('cannot be setup with a response entity without a content type', function (done) {
+            apiClient.post('/expect', { url: 'my/url', respondWith: {
+                entity: { something: "else" }
+            }}, function (err, req, res) {
+                expect(res.statusCode).to.equal(400);
+                expect(res.body).to.equal("\"Content-Type must be specified with a response entity.\"");
+                done();
+            });
+        });
+
+        it('can be setup without a content type when no response entity', function (done) {
+            apiClient.post('/expect', { url: 'my/url', respondWith: {
+                "Content-Type": "application/json"
+            }}, function (err, req, res) {
+                expect(res.statusCode).to.equal(200);
+                done();
+            });
+        });
+
+        it('can be setup to match on a url', function (done) {
+            apiClient.post('/expect', { url: '/my/url', respondWith: {
+                entity: { something: "else" },
+                "Content-Type": "application/json"
+            }}, function (err, req, res) {
+                expect(res.statusCode).to.equal(200);
+
+                vanilliClient.get('/my/url', function (err, req, res, result) {
+                    expect(result.something).to.equal("else");
+                    done();
+                });
             });
         });
     });

@@ -5,7 +5,7 @@ var vanilli = require('../../lib/vanilli.js'),
 
 portfinder.basePort = 14000;
 
-exports.start = function(log, done) {
+exports.startVanilli = function(log, done) {
     function findFreePorts(numberOfPorts, callback) {
         function portFound(err, port) {
             if (err) {
@@ -35,8 +35,10 @@ exports.start = function(log, done) {
     });
 };
 
-exports.stop = function() {
-    servers.closeAll();
+exports.stopVanilli = function() {
+    try {
+        servers.closeAll();
+    } catch (e) {}
 };
 
 exports.createApiClient = function () {
