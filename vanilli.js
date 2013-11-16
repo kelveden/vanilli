@@ -1,21 +1,35 @@
-exports.startServer = function (port) {
+exports.startServer = function (config) {
     var http = require('http'),
         log = require('bunyan').createLogger({ name: "vanilli" }),
         restify = require('restify'),
-        restServer = restify.createServer();
+        apiServer = restify.createServer(),
+        vanilliServer = restify.createServer();
 
-    restServer.listen(port, function () {
-        restServer.use(restify.queryParser({ mapParams: false }));
-        restServer.use(restify.jsonp());
-
-        restServer.get('ping', function (request, response, next) {
+    apiServer.listen(config.apiPort, function () {
+        apiServer.get('ping', function (request, response, next) {
             response.send({ ping: "pong" });
             return next();
         });
+
+        log.info("Vanilli API started on port " + config.apiPort + ".");
     });
 
-    log.info("Vanilli started on port " + port + ".");
+    vanilliServer.listen(config.serverPort, function () {
+        vanilliServer.get('ping', function (request, response, next) {
+            response.send({ ping: "pong" });
+            return next();
+        });
 
-    return restServer;
+        log.info("Vanilli Server started on port " + config.serverPort + ".");
+    });
+
+    return {
+        apiServer: apiServer,
+        vanilliServer: vanilliServer,
+        closeAll: function () {
+            apiServer.close();
+            vanilliServer.close();
+        }
+    }
 }
 

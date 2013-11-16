@@ -26,7 +26,7 @@ module.exports = function (grunt) {
             all: ['test/**/*.js'],
             options: {
                 reporter: 'spec',
-                ui: 'tdd'
+                ui: 'bdd'
             }
         },
         watch: {
@@ -37,9 +37,6 @@ module.exports = function (grunt) {
                     nospawn: true
                 }
             }
-        },
-        nodeunit: {
-            all: ['test/**/*.js']
         }
     });
 
