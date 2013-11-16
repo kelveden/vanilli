@@ -1,8 +1,9 @@
+var http = require('http'),
+    log = require('bunyan').createLogger({ name: "vanilli" }),
+    restify = require('restify');
+
 exports.startServer = function (config) {
-    var http = require('http'),
-        log = require('bunyan').createLogger({ name: "vanilli" }),
-        restify = require('restify'),
-        apiServer = restify.createServer(),
+    var apiServer = restify.createServer(),
         vanilliServer = restify.createServer();
 
     apiServer.listen(config.apiPort, function () {
@@ -31,5 +32,5 @@ exports.startServer = function (config) {
             vanilliServer.close();
         }
     }
-}
+};
 

@@ -2,34 +2,13 @@ var expect = require('expect.js'),
     vanilli = require('../vanilli.js'),
     restify = require('restify'),
     log = require('bunyan').createLogger({ name: "vanilli-test" }),
-    portfinder = require('portfinder');
-
-portfinder.basePort = 14000;
-
-function getFreePorts(numberOfPorts, callback) {
-    function portFound(err, port) {
-        if (err) {
-            throw new Error(err);
-        } else {
-            ports.push(port);
-            if (ports.length === numberOfPorts) {
-                callback(ports);
-            }
-        }
-    }
-
-    var ports = [], i;
-
-    for (i = 1; i <= numberOfPorts; i++) {
-        portfinder.getPort(portFound);
-    }
-}
+    portScanner = require('./lib/port-scanner.js');
 
 describe('Vanilli', function () {
     var servers, vanilliPort, apiPort, vanilliClient, apiClient;
 
     before(function (done) {
-        getFreePorts(2, function (ports) {
+        portScanner.findFreePorts(2, function (ports) {
             apiPort = ports[0];
             vanilliPort = ports[1];
 
