@@ -1,3 +1,3 @@
 # vanilli
 
-[![build status](https://secure.travis-ci.org/vanilli.png)](http://travis-ci.org/vanilli)
+[![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
