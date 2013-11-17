@@ -3,6 +3,8 @@ var vanilliLogLevel = "error",
     vanilli = require('../lib/vanilli.js'),
     chai = require('chai'),
     chaiHttp = require('chai-http'),
+    portfinder = require('portfinder'),
+    when = require('when'),
     log = require('bunyan').createLogger({
         name: "vanilli-test",
         level: vanilliLogLevel
@@ -18,34 +20,60 @@ function createVanilliClient(vanilliEnvironment) {
     return chai.request(vanilliEnvironment.vanilliServer.url);
 };
 
+function getFreePort() {
+    var deferred = when.defer();
+
+    portfinder.getPort(function (err, port) {
+        if (err) {
+            deferred.reject(err);
+        } else {
+            deferred.resolve(port);
+        }
+    });
+
+    return deferred.promise;
+}
+
 describe('Vanilli', function () {
+    var apiPort, vanilliPort;
+
+    before(function (done) {
+        portfinder.basePort = 14000;
+
+        getFreePort()
+            .then(function (port) {
+                apiPort = port;
+                portfinder.basePort = apiPort + 1;
+            })
+            .then(getFreePort)
+            .then(function (port) {
+                vanilliPort = port;
+            })
+            .then(done);
+    });
+
     describe('initialisation', function () {
-        it('selects the first available port as the vanilli port if not explicitly specified', function (done) {
-            vanilli.startServer({ apiPort: 1234, log: log }).then(function (vanilliEnvironment) {
-                expect(vanilliEnvironment.vanilliServer.url).to.exist;
-                vanilliEnvironment.stop();
-                done();
-            });
+        it('throws an error if the vanilli port is not explicitly specified', function () {
+            expect(function () {
+                vanilli.startServer({ apiPort: 1234, log: log });
+            })
+                .to.throw(/vanilli port must be specified/);
         });
 
-        it('selects the first available port as the api port if not explicitly specified', function (done) {
-            vanilli.startServer({ vanilliPort: 1234, log: log }).then(function (vanilliEnvironment) {
-                expect(vanilliEnvironment.apiServer.url).to.exist;
-                vanilliEnvironment.stop();
-                done();
-            });
+        it('throws an error if the api port is not explicitly specified', function () {
+            expect(function () {
+                vanilli.startServer({ vanillaPort: 1234, log: log });
+            })
+                .to.throw(/api port must be specified/);
         });
     });
 
     describe('API', function () {
         var apiClient, vanilliEnvironment;
 
-        beforeEach(function (done) {
-            vanilli.startServer({ log: log }).then(function (environment) {
-                vanilliEnvironment = environment;
-                apiClient = createApiClient(environment);
-                done();
-            });
+        beforeEach(function () {
+            vanilliEnvironment = vanilli.startServer({ log: log, apiPort: apiPort, vanilliPort: vanilliPort });
+            apiClient = createApiClient(vanilliEnvironment);
         });
 
         afterEach(function () {
@@ -64,13 +92,10 @@ describe('Vanilli', function () {
     describe('expectations', function () {
         var vanilliClient, apiClient, vanilliEnvironment;
 
-        beforeEach(function (done) {
-            vanilli.startServer({ log: log }).then(function (environment) {
-                vanilliEnvironment = environment;
-                apiClient = createApiClient(environment);
-                vanilliClient = createVanilliClient(environment);
-                done();
-            });
+        beforeEach(function () {
+            vanilliEnvironment = vanilli.startServer({ log: log, apiPort: apiPort, vanilliPort: vanilliPort });
+            apiClient = createApiClient(vanilliEnvironment);
+            vanilliClient = createVanilliClient(vanilliEnvironment);
         });
 
         afterEach(function () {
