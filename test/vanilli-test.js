@@ -34,6 +34,16 @@ function getFreePort() {
     return deferred.promise;
 }
 
+function safely(testFunc) {
+    return function (done) {
+        try {
+            testFunc(done);
+        } catch (e) {
+            done(e);
+        }
+    }
+}
+
 describe('Vanilli', function () {
     var apiPort, vanilliPort;
 
@@ -80,13 +90,13 @@ describe('Vanilli', function () {
             vanilliEnvironment.stop();
         });
 
-        it('should be pingable', function (done) {
+        it('should be pingable', safely(function (done) {
             apiClient.get('/ping').res(function (result) {
                 expect(result).to.be.json;
                 expect(result.body.ping).to.be.equal("pong");
                 done();
             });
-        });
+        }));
     });
 
     describe('expectations', function () {
@@ -102,7 +112,7 @@ describe('Vanilli', function () {
             vanilliEnvironment.stop();
         });
 
-        it('cannot be setup without a url', function (done) {
+        it('cannot be setup without a url', safely(function (done) {
             apiClient.post('/expect')
                 .req(function (req) {
                     req.send({
@@ -117,9 +127,9 @@ describe('Vanilli', function () {
                     expect(res.body).to.equal("Url must be specified.");
                     done();
                 });
-        });
+        }));
 
-        it('cannot be setup with a response entity without a content type', function (done) {
+        it('cannot be setup with a response entity without a content type', safely(function (done) {
             apiClient.post('/expect')
                 .req(function (req) {
                     req.send({
@@ -134,9 +144,9 @@ describe('Vanilli', function () {
                     expect(res.body).to.equal("Content-Type must be specified with a response entity.");
                     done();
                 });
-        });
+        }));
 
-        it('can be setup without a content type when no response entity', function (done) {
+        it('can be setup without a content type when no response entity', safely(function (done) {
             apiClient.post('/expect')
                 .req(function (req) {
                     req.send({
@@ -150,9 +160,9 @@ describe('Vanilli', function () {
                     expect(res).to.have.status(200);
                     done();
                 });
-        });
+        }));
 
-        it('can be setup to match on a url', function (done) {
+        it('can be setup to match on a url', safely(function (done) {
             apiClient.post('/expect')
                 .req(function (req) {
                     req.send({
@@ -172,7 +182,7 @@ describe('Vanilli', function () {
                             done();
                         });
                 });
-        });
+        }));
     });
 });
 
