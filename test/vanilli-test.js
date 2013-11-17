@@ -1,23 +1,21 @@
 var vanilliLogLevel = "error",
-    expect = require('chai').expect,
     vanilli = require('../lib/vanilli.js'),
+    expect = require('chai').expect,
     chai = require('chai'),
-    chaiHttp = require('chai-http'),
     portfinder = require('portfinder'),
     when = require('when'),
+    request = require('supertest'),
     log = require('bunyan').createLogger({
         name: "vanilli-test",
         level: vanilliLogLevel
     });
 
-chai.use(chaiHttp);
-
 function createApiClient(vanilliEnvironment) {
-    return chai.request(vanilliEnvironment.apiServer.url);
+    return request(vanilliEnvironment.apiServer);
 };
 
 function createVanilliClient(vanilliEnvironment) {
-    return chai.request(vanilliEnvironment.vanilliServer.url);
+    return request(vanilliEnvironment.vanilliServer);
 };
 
 function getFreePort() {
@@ -32,16 +30,6 @@ function getFreePort() {
     });
 
     return deferred.promise;
-}
-
-function safely(testFunc) {
-    return function (done) {
-        try {
-            testFunc(done);
-        } catch (e) {
-            done(e);
-        }
-    }
 }
 
 describe('Vanilli', function () {
@@ -90,13 +78,10 @@ describe('Vanilli', function () {
             vanilliEnvironment.stop();
         });
 
-        it('should be pingable', safely(function (done) {
-            apiClient.get('/ping').res(function (result) {
-                expect(result).to.be.json;
-                expect(result.body.ping).to.be.equal("pong");
-                done();
-            });
-        }));
+        it('should be pingable', function (done) {
+            apiClient.get('/ping')
+                .expect(200, { ping: "pong" }, done);
+        });
     });
 
     describe('expectations', function () {
@@ -112,77 +97,57 @@ describe('Vanilli', function () {
             vanilliEnvironment.stop();
         });
 
-        it('cannot be setup without a url', safely(function (done) {
+        it('cannot be setup without a url', function (done) {
             apiClient.post('/expect')
-                .req(function (req) {
-                    req.send({
-                        respondWith: {
-                            entity: { something: "else" },
-                            "Content-Type": "application/json"
-                        }
-                    });
+                .set('Content-Type', 'application/json')
+                .send({
+                    respondWith: {
+                        entity: { something: "else" },
+                        "Content-Type": "application/json"
+                    }
                 })
-                .res(function (res) {
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.equal("Url must be specified.");
-                    done();
-                });
-        }));
+                .expect(400, "\"Url must be specified.\"", done);
+        });
 
-        it('cannot be setup with a response entity without a content type', safely(function (done) {
+        it('cannot be setup with a response entity without a content type', function (done) {
             apiClient.post('/expect')
-                .req(function (req) {
-                    req.send({
-                        url: 'my/url',
-                        respondWith: {
-                            entity: { something: "else" }
-                        }
-                    });
+                .send({
+                    url: 'my/url',
+                    respondWith: {
+                        entity: { something: "else" }
+                    }
                 })
-                .res(function (res) {
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.equal("Content-Type must be specified with a response entity.");
-                    done();
-                });
-        }));
+                .expect(400, "\"Content-Type must be specified with a response entity.\"", done);
+        });
 
-        it('can be setup without a content type when no response entity', safely(function (done) {
+        it('can be setup without a content type when no response entity', function (done) {
             apiClient.post('/expect')
-                .req(function (req) {
-                    req.send({
-                        url: 'my/url',
-                        respondWith: {
-                            "Content-Type": "application/json"
-                        }
-                    });
+                .send({
+                    url: 'my/url',
+                    respondWith: {
+                        "Content-Type": "application/json"
+                    }
                 })
-                .res(function (res) {
-                    expect(res).to.have.status(200);
-                    done();
-                });
-        }));
+                .expect(200, done);
+        });
 
-        it('can be setup to match on a url', safely(function (done) {
+        it('can be setup to match on a url', function (done) {
             apiClient.post('/expect')
-                .req(function (req) {
-                    req.send({
+                .send({
                         url: '/my/url',
                         respondWith: {
                             entity: { something: "else" },
                             "Content-Type": "application/json"
                         }
-                    });
-                })
-                .res(function (res) {
-                    expect(res).to.have.status(200);
+                    })
+                .expect(200)
+                .end(function (err) {
+                    if (err) return done(err);
 
                     vanilliClient.get('/my/url')
-                        .res(function (result) {
-                            expect(result.body.something).to.equal("else");
-                            done();
-                        });
+                        .expect({ something: "else" }, done);
                 });
-        }));
+        });
     });
 });
 
