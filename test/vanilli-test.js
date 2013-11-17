@@ -1,38 +1,56 @@
-var expect = require('chai').expect,
+var vanilliLogLevel = "error",
+    expect = require('chai').expect,
     vanilli = require('../lib/vanilli.js'),
-    vanilliHelper = require('./lib/vanilli-helper.js'),
+    restify = require('restify'),
     log = require('bunyan').createLogger({
         name: "vanilli-test",
-        level: "error"
+        level: vanilliLogLevel
     });
+
+function createApiClient (vanilliEnvironment) {
+    return restify.createJsonClient({
+        url: vanilliEnvironment.apiServer.url
+    });
+};
+
+function createVanilliClient (vanilliEnvironment) {
+    return restify.createJsonClient({
+        url: vanilliEnvironment.vanilliServer.url
+    });
+};
 
 describe('Vanilli', function () {
-    it('throws an error if no api port specified', function () {
-        expect(function () {
-            vanilli.startServer({ apiPort: 1234 });
-        })
-            .to.throw(/vanilliPort not specified/);
-    });
-
-    it('throws an error if no vanilli port specified', function () {
-        expect(function () {
-            vanilli.startServer({ vanilliPort: 1234 });
-        })
-            .to.throw(/apiPort not specified/);
-    });
-
-    describe('API', function () {
-        var apiClient;
-
-        before(function (done) {
-            vanilliHelper.startVanilli(log, function () {
-                apiClient = vanilliHelper.createApiClient();
+    describe('initialisation', function () {
+        it('selects the first available port as the vanilli port if not explicitly specified', function (done) {
+            vanilli.startServer({ apiPort: 1234, log: log }).then(function (vanilliEnvironment) {
+                expect(vanilliEnvironment.vanilliServer.url).to.exist;
+                vanilliEnvironment.stop();
                 done();
             });
         });
 
-        after(function () {
-            vanilliHelper.stopVanilli();
+        it('selects the first available port as the api port if not explicitly specified', function (done) {
+            vanilli.startServer({ vanilliPort: 1234, log: log }).then(function (vanilliEnvironment) {
+                expect(vanilliEnvironment.apiServer.url).to.exist;
+                vanilliEnvironment.stop();
+                done();
+            });
+        });
+    });
+
+    describe('API', function () {
+        var apiClient, vanilliEnvironment;
+
+        beforeEach(function (done) {
+            vanilli.startServer({ log: log }).then(function (environment) {
+                vanilliEnvironment = environment;
+                apiClient = createApiClient(environment);
+                done();
+            });
+        });
+
+        afterEach(function () {
+            vanilliEnvironment.stop();
         });
 
         it('should be pingable', function (done) {
@@ -44,24 +62,19 @@ describe('Vanilli', function () {
     });
 
     describe('expectations', function () {
-        var vanilliClient, apiClient;
-
-        before(function (done) {
-            vanilliHelper.startVanilli(log, function () {
-                apiClient = vanilliHelper.createApiClient();
-                vanilliClient = vanilliHelper.createVanilliClient();
-                done();
-            });
-        });
-
-        after(function () {
-            vanilliHelper.stopVanilli();
-        });
+        var vanilliClient, apiClient, vanilliEnvironment;
 
         beforeEach(function (done) {
-            apiClient.del('/', function () {
+            vanilli.startServer({ log: log }).then(function (environment) {
+                vanilliEnvironment = environment;
+                apiClient = createApiClient(environment);
+                vanilliClient = createVanilliClient(environment);
                 done();
             });
+        });
+
+        afterEach(function () {
+            vanilliEnvironment.stop();
         });
 
         it('cannot be setup without a url', function (done) {
