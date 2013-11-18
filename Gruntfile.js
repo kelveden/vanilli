@@ -47,5 +47,5 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['complexity', 'jshint', 'mochacli', 'watch']);
     grunt.registerTask('ci', ['complexity', 'jshint', 'mochacli']);
 
-    grunt.registerTask('default', ['test']);
+    grunt.registerTask('default', ['ci']);
 };
