@@ -14,8 +14,8 @@ function createApiClient(vanilliEnvironment) {
     return request(vanilliEnvironment.apiServer);
 };
 
-function createVanilliClient(vanilliEnvironment) {
-    return request(vanilliEnvironment.vanilliServer);
+function createFakeClient(vanilliEnvironment) {
+    return request(vanilliEnvironment.fakeServer);
 };
 
 function getFreePort() {
@@ -32,8 +32,8 @@ function getFreePort() {
     return deferred.promise;
 }
 
-describe('Vanilli', function () {
-    var apiPort, vanilliPort;
+describe('The Vanilli server', function () {
+    var apiPort, fakePort;
 
     before(function (done) {
         portfinder.basePort = 14000;
@@ -45,24 +45,24 @@ describe('Vanilli', function () {
             })
             .then(getFreePort)
             .then(function (port) {
-                vanilliPort = port;
+                fakePort = port;
             })
             .then(done);
     });
 
     describe('initialisation', function () {
-        it('throws an error if the vanilli port is not explicitly specified', function () {
+        it('throws an error if the fake port is not explicitly specified', function () {
             expect(function () {
-                vanilli.startServer({ apiPort: 1234, log: log });
+                vanilli.startVanilli({ apiPort: 1234, log: log });
             })
-                .to.throw(/vanilli port must be specified/);
+                .to.throw(/Fake server port must be specified/);
         });
 
         it('throws an error if the api port is not explicitly specified', function () {
             expect(function () {
-                vanilli.startServer({ vanillaPort: 1234, log: log });
+                vanilli.startVanilli({ fakePort: 1234, log: log });
             })
-                .to.throw(/api port must be specified/);
+                .to.throw(/API server port must be specified/);
         });
     });
 
@@ -70,7 +70,7 @@ describe('Vanilli', function () {
         var apiClient, vanilliEnvironment;
 
         beforeEach(function () {
-            vanilliEnvironment = vanilli.startServer({ log: log, apiPort: apiPort, vanilliPort: vanilliPort });
+            vanilliEnvironment = vanilli.startVanilli({ log: log, apiPort: apiPort, fakePort: fakePort });
             apiClient = createApiClient(vanilliEnvironment);
         });
 
@@ -85,12 +85,12 @@ describe('Vanilli', function () {
     });
 
     describe('expectations', function () {
-        var vanilliClient, apiClient, vanilliEnvironment;
+        var fakeClient, apiClient, vanilliEnvironment;
 
         beforeEach(function () {
-            vanilliEnvironment = vanilli.startServer({ log: log, apiPort: apiPort, vanilliPort: vanilliPort });
+            vanilliEnvironment = vanilli.startVanilli({ log: log, apiPort: apiPort, fakePort: fakePort });
             apiClient = createApiClient(vanilliEnvironment);
-            vanilliClient = createVanilliClient(vanilliEnvironment);
+            fakeClient = createFakeClient(vanilliEnvironment);
         });
 
         afterEach(function () {
@@ -101,6 +101,8 @@ describe('Vanilli', function () {
             apiClient.post('/expect')
                 .set('Content-Type', 'application/json')
                 .send({
+                    criteria: {
+                    },
                     respondWith: {
                         entity: { something: "else" },
                         "Content-Type": "application/json"
@@ -112,7 +114,9 @@ describe('Vanilli', function () {
         it('cannot be setup with a response entity without a content type', function (done) {
             apiClient.post('/expect')
                 .send({
-                    url: 'my/url',
+                    criteria: {
+                        url: 'my/url'
+                    },
                     respondWith: {
                         entity: { something: "else" }
                     }
@@ -123,7 +127,9 @@ describe('Vanilli', function () {
         it('can be setup without a content type when no response entity', function (done) {
             apiClient.post('/expect')
                 .send({
-                    url: 'my/url',
+                    criteria: {
+                        url: 'my/url'
+                    },
                     respondWith: {
                         "Content-Type": "application/json"
                     }
@@ -134,17 +140,19 @@ describe('Vanilli', function () {
         it('can be setup to match on a url', function (done) {
             apiClient.post('/expect')
                 .send({
-                        url: '/my/url',
-                        respondWith: {
-                            entity: { something: "else" },
-                            "Content-Type": "application/json"
-                        }
-                    })
+                    criteria: {
+                        url: 'my/url'
+                    },
+                    respondWith: {
+                        entity: { something: "else" },
+                        "Content-Type": "application/json"
+                    }
+                })
                 .expect(200)
                 .end(function (err) {
                     if (err) return done(err);
 
-                    vanilliClient.get('/my/url')
+                    fakeClient.get('/my/url')
                         .expect({ something: "else" }, done);
                 });
         });
