@@ -8,11 +8,11 @@ var vanilliLogLevel = "error",
 
 function createApiClient(vanilliEnvironment) {
     return request(vanilliEnvironment.apiServer);
-};
+}
 
 function createFakeClient(vanilliEnvironment) {
     return request(vanilliEnvironment.fakeServer);
-};
+}
 
 function getFreePort() {
     var deferred = when.defer();

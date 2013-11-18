@@ -1,3 +1,4 @@
+/* jshint expr:true */
 var vanilliLogLevel = "error",
     expect = require('chai').expect,
     chai = require('chai'),

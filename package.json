@@ -14,7 +14,7 @@
     "author": "Alistair Dutton <kelveden@gmail.com>",
     "license": "BSD-3-Clause",
     "bugs": {
-        "url": "https://github.com//vanilli/issues"
+        "url": "https://github.com/vanilli/issues"
     },
     "dependencies": {
         "restify": "~2.6.0",
@@ -22,7 +22,7 @@
         "when": "~2.6.0"
     },
     "devDependencies": {
-        "grunt-contrib-jshint": "~0.6.4",
+        "grunt-contrib-jshint": "~0.7.2",
         "grunt-contrib-watch": "~0.5.3",
         "grunt": "~0.4.1",
         "grunt-mocha-cli": "~1.1.0",
