@@ -4,11 +4,7 @@ var vanilliLogLevel = "error",
     chai = require('chai'),
     portfinder = require('portfinder'),
     when = require('when'),
-    request = require('supertest'),
-    log = require('bunyan').createLogger({
-        name: "vanilli-test",
-        level: vanilliLogLevel
-    });
+    request = require('supertest');
 
 function createApiClient(vanilliEnvironment) {
     return request(vanilliEnvironment.apiServer);
@@ -53,14 +49,14 @@ describe('The Vanilli server', function () {
     describe('initialisation', function () {
         it('throws an error if the fake port is not explicitly specified', function () {
             expect(function () {
-                vanilli.startVanilli({ apiPort: 1234, log: log });
+                vanilli.startVanilli({ apiPort: 1234, logLevel: vanilliLogLevel });
             })
                 .to.throw(/Fake server port must be specified/);
         });
 
         it('throws an error if the api port is not explicitly specified', function () {
             expect(function () {
-                vanilli.startVanilli({ fakePort: 1234, log: log });
+                vanilli.startVanilli({ fakePort: 1234, logLevel: vanilliLogLevel });
             })
                 .to.throw(/API server port must be specified/);
         });
@@ -70,7 +66,7 @@ describe('The Vanilli server', function () {
         var apiClient, vanilliEnvironment;
 
         beforeEach(function () {
-            vanilliEnvironment = vanilli.startVanilli({ log: log, apiPort: apiPort, fakePort: fakePort });
+            vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
             apiClient = createApiClient(vanilliEnvironment);
         });
 
@@ -88,7 +84,7 @@ describe('The Vanilli server', function () {
         var fakeClient, apiClient, vanilliEnvironment;
 
         beforeEach(function () {
-            vanilliEnvironment = vanilli.startVanilli({ log: log, apiPort: apiPort, fakePort: fakePort });
+            vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
             apiClient = createApiClient(vanilliEnvironment);
             fakeClient = createFakeClient(vanilliEnvironment);
         });
