@@ -104,7 +104,7 @@ describe('The Vanilli server', function () {
                         "Content-Type": "application/json"
                     }
                 })
-                .expect(400, "\"Url must be specified.\"", done);
+                .expect(400, /url/, done);
         });
 
         it('cannot be setup with a response entity without a content type', function (done) {
@@ -114,10 +114,13 @@ describe('The Vanilli server', function () {
                         url: 'my/url'
                     },
                     respondWith: {
-                        entity: { something: "else" }
+                        status: 200,
+                        entity: {
+                            something: "else"
+                        }
                     }
                 })
-                .expect(400, "\"Content-Type must be specified with a response entity.\"", done);
+                .expect(400, /contentType/, done);
         });
 
         it('can be setup without a content type when no response entity', function (done) {
@@ -127,7 +130,7 @@ describe('The Vanilli server', function () {
                         url: 'my/url'
                     },
                     respondWith: {
-                        "Content-Type": "application/json"
+                        status: 200
                     }
                 })
                 .expect(200, done);
@@ -140,8 +143,11 @@ describe('The Vanilli server', function () {
                         url: 'my/url'
                     },
                     respondWith: {
-                        entity: { something: "else" },
-                        "Content-Type": "application/json"
+                        status: 200,
+                        entity: {
+                            something: "else"
+                        },
+                        contentType: "application/json"
                     }
                 })
                 .expect(200)
