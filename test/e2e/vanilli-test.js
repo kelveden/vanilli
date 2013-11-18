@@ -1,5 +1,5 @@
 var vanilliLogLevel = "error",
-    vanilli = require('../lib/vanilli.js'),
+    vanilli = require('../../lib/vanilli.js'),
     expect = require('chai').expect,
     chai = require('chai'),
     portfinder = require('portfinder'),
