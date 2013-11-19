@@ -18,9 +18,32 @@ function getFreePort() {
     return deferred.promise;
 }
 
+/**
+ * Assigns two free ports - passing each into the specified success callbacks.
+ */
 exports.assignPorts = function(apiPortSuccess, fakePortSuccess) {
     return getFreePort()
         .then(apiPortSuccess)
         .then(getFreePort)
         .then(fakePortSuccess);
 };
+
+/**
+ * "Ending" callback to be passed to the .end function of supertest. Ensures that erroring responses are logged to console
+ * for easier diagnosing of test failures.
+ *
+ * @param done
+ *      The 'done' function to call when an error occurs.
+ * @param next
+ *      The function to call if no error occurs.
+ */
+exports.ender = function (next) {
+    return function (err, res) {
+        if (err) {
+            throw new Error(err.message + (res ? " | Response: " + JSON.stringify(res.body) : ""));
+        }
+
+        next();
+    };
+};
+
