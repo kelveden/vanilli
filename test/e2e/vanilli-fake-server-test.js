@@ -1,6 +1,7 @@
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     helper = require('./e2e-helper.js'),
+    ender = helper.ender,
     expect = require('chai').expect,
     chai = require('chai'),
     request = require('supertest');
@@ -12,12 +13,10 @@ describe('The Vanilli fake server', function () {
 
     before(function (done) {
         helper.assignPorts(
-            function (port) {
-                apiPort = port;
-            }, function (port) {
-                fakePort = port;
-            })
-            .then(done);
+            function (port) { apiPort = port; },
+            function (port) { fakePort = port; }
+        )
+        .then(done);
     });
 
     describe('stubs', function () {
@@ -89,37 +88,55 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.get(url)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
         it('MUST match against request with the same method', function (done) {
-            var expectedStatus = 234,
-                url = "/my/url";
+            var expectedStatus = 234;
 
             apiClient.post('/expect')
                 .send({
                     criteria: {
-                        url: url,
+                        url: dummyUrl,
                         method: 'DELETE'
                     },
                     respondWith: {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
-                    fakeClient.del(url)
+                .end(ender(function () {
+                    fakeClient.del(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
-        it("MUST match against request with headers that are included in the stub");
+        it("MUST match against request with headers that are included in the stub", function (done) {
+
+            var expectedHeaderValue = "myvalue",
+                expectedStatus = 234;
+
+            apiClient.post('/expect')
+                .send({
+                    criteria: {
+                        url: dummyUrl,
+                        headers: {
+                            "My-Header": expectedHeaderValue
+                        }
+                    },
+                    respondWith: {
+                        status: expectedStatus
+                    }
+                })
+                .end(ender(function () {
+                    fakeClient.get(dummyUrl)
+                        .set("My-Header", expectedHeaderValue)
+                        .expect(expectedStatus, done);
+                }));
+        });
+
         it("MUST match against request with the same response entity");
         it("MUST match against request where the response entity fulfills the matching criteria specified by a function specified in the stub");
     });
@@ -137,7 +154,7 @@ describe('The Vanilli fake server', function () {
             vanilliEnvironment.stop();
         });
 
-        it('MUST honour a "get" request if it matches a stub', function (done) {
+        it('MUST be honoured for GET request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
@@ -150,15 +167,13 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.get(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
-        it('MUST honour a "delete" request if it matches a stub', function (done) {
+        it('MUST be honoured for DELETE request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
@@ -171,15 +186,13 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.del(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
-        it('MUST honour a "post" request if it matches a stub', function (done) {
+        it('MUST be honoured for POST request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
@@ -192,15 +205,13 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.post(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
-        it('MUST honour a "put" request if it matches a stub', function (done) {
+        it('MUST be honoured for PUT request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
@@ -213,12 +224,15 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.put(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
+        });
+
+        it('MUST be honoured with a 404 if no stub matches', function (done) {
+            fakeClient.get(dummyUrl)
+                .expect(404, { vanilli: 'Stub not found.' }, done);
         });
     });
 
@@ -247,12 +261,10 @@ describe('The Vanilli fake server', function () {
                         status: expectedStatus
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.get(dummyUrl)
                         .expect(expectedStatus, done);
-                });
+                }));
         });
 
         it('MUST have the entity specified in the matching stub', function (done) {
@@ -271,12 +283,10 @@ describe('The Vanilli fake server', function () {
                         contentType: "application/json"
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
-                    fakeClient.get(dummyUrl)
+                .end(ender(function () {
+                    fakeClient.del(dummyUrl)
                         .expect(dummyStatus, expectedEntity, done);
-                });
+                }));
         });
 
         it('MUST have the content type specified in the matching stub', function (done) {
@@ -293,12 +303,10 @@ describe('The Vanilli fake server', function () {
                         contentType: expectedContentType
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.get(dummyUrl)
                         .expect("Content-Type", expectedContentType, done);
-                });
+                }));
         });
 
         it('MUST have the headers specified in the matching stub', function (done) {
@@ -316,12 +324,10 @@ describe('The Vanilli fake server', function () {
                         }
                     }
                 })
-                .end(function (err) {
-                    if (err) return done(err);
-
+                .end(ender(function () {
                     fakeClient.get(dummyUrl)
                         .expect("My-Header", expectedHeaderValue, done);
-                });
+                }));
         });
     });
 });
