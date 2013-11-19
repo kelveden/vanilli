@@ -139,7 +139,18 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ url: "my/url" })).to.exist;
         });
 
-        it('will not match on stub with different url', function () {
+        it('will match on stub specified with url string with leading "/"', function () {
+            registry.add({
+                criteria: {
+                    url: "/my/url"
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({ url: "my/url" })).to.exist;
+        });
+
+        it('will NOT match on stub with different url', function () {
             registry.add({
                 criteria: {
                     url: "some/url"
@@ -162,7 +173,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ url: "my/url", method: "GET" })).to.exist;
         });
 
-        it('will not match on stub specified with different HTTP method', function () {
+        it('will NOT match on stub specified with different HTTP method', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
@@ -234,7 +245,7 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will not match on stub specified with different header value', function () {
+        it('will NOT match on stub specified with different header value', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
@@ -252,7 +263,7 @@ describe('The stub registry', function () {
             })).to.not.exist;
         });
 
-        it('will not match on stub specified with other header', function () {
+        it('will NOT match on stub specified with other header', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
@@ -329,7 +340,7 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will not match on stub specified with matching entity but different content type', function () {
+        it('will NOT match on stub specified with matching entity but different content type', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
