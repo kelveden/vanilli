@@ -23,16 +23,22 @@ module.exports = function (grunt) {
             }
         },
         mochacli: {
-            all: ['test/**/*.js'],
             options: {
                 reporter: 'spec',
-                ui: 'bdd'
-            }
+                ui: 'bdd',
+                files: ['test/**/*.js']
+            },
+            tdd: {
+                options: {
+                    force: true
+                }
+            },
+            test: { }
         },
         watch: {
             js: {
                 files: [ '**/*.js', '!node_modules/**/*.js' ],
-                tasks: [ 'default' ],
+                tasks: [ 'tdd' ],
                 options: {
                     nospawn: true
                 }
@@ -45,8 +51,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-mocha-cli');
 
-    grunt.registerTask('test', ['complexity', 'jshint', 'mochacli', 'watch']);
-    grunt.registerTask('ci', ['complexity', 'jshint', 'mochacli']);
+    grunt.registerTask('verify', ['complexity', 'jshint', 'mochacli:test']);
+    grunt.registerTask('tdd', ['complexity', 'jshint', 'mochacli:tdd', 'watch' ]);
 
-    grunt.registerTask('default', ['ci']);
+    grunt.registerTask('default', ['verify']);
 };
