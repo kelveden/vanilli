@@ -177,8 +177,65 @@ describe('The Vanilli fake server', function () {
                 });
         });
 
-        it("MUST match against request with the same response entity");
-        it("MUST match against request where the response entity fulfills the matching criteria specified by a function specified in the stub");
+        it("MUST match against request with the same response entity", function (done) {
+            var expectedEntity = {
+                myfield: "myvalue"
+            };
+
+            apiClient.post('/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                            entity: expectedEntity,
+                            contentType: 'application/json'
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    fakeClient.post(dummyUrl)
+                        .req(function (req) {
+                            req.set('Content-Type', 'application/json');
+                            req.send(expectedEntity);
+                        })
+                        .res(function (res) {
+                            expect(res.status).to.equal(dummyStatus);
+                            done();
+                        });
+                });
+        });
+
+        it("MUST NOT match against request with no response entity if the stub matches against entity", function (done) {
+            var expectedEntity = {
+                myfield: "myvalue"
+            };
+
+            apiClient.post('/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                            entity: expectedEntity,
+                            contentType: 'application/json'
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    fakeClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.equal(404);
+                            done();
+                        });
+                });
+        });
     });
 
     describe('requests', function () {

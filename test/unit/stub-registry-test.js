@@ -293,7 +293,9 @@ describe('The stub registry', function () {
                 body: {
                     myfield: "myvalue"
                 },
-                contentType: "application/json"
+                contentType: function () {
+                    return "application/json";
+                }
             })).to.exist;
         });
 
@@ -312,7 +314,9 @@ describe('The stub registry', function () {
                 body: {
                     myfield: "myvalue"
                 },
-                contentType: "application/json"
+                contentType: function () {
+                    return "application/json";
+                }
             })).to.exist;
         });
 
@@ -356,7 +360,9 @@ describe('The stub registry', function () {
                 body: {
                     myfield: "myvalue"
                 },
-                contentType: "text/plain"
+                contentType: function () {
+                    return "text/plain";
+                }
             })).to.not.exist;
         });
 
