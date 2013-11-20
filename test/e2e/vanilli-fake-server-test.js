@@ -236,6 +236,65 @@ describe('The Vanilli fake server', function () {
                         });
                 });
         });
+
+        it("MUST ONLY match the number of times specified in the stub", function (done) {
+            var expectedStatus = 234;
+
+            apiClient.post('/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        },
+                        times: 1
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    fakeClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+
+                            fakeClient.get(dummyUrl)
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(404);
+                                    done();
+                                });
+                        });
+                });
+        });
+
+        it("MUST match any number times if not specified explicitly in the stub", function (done) {
+            var expectedStatus = 234;
+
+            apiClient.post('/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    fakeClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+
+                            fakeClient.get(dummyUrl)
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(expectedStatus);
+                                    done();
+                                });
+                        });
+                });
+        });
     });
 
     describe('requests', function () {

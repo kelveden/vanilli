@@ -384,6 +384,31 @@ describe('The stub registry', function () {
                 registry.findMatchFor({ url: "my/url" });
             }).to.throw(/more than one/i);
         });
+
+        it('will ONLY match the specified number of times', function () {
+            registry.add({
+                criteria: {
+                    url: "my/url"
+                },
+                respondWith: dummyRespondWith,
+                times: 1
+            });
+
+            expect(registry.findMatchFor({ url: "my/url" })).to.exist;
+            expect(registry.findMatchFor({ url: "my/url" })).to.not.exist;
+        });
+
+        it('will match any number of times if not specified explicitly on the stub', function () {
+            registry.add({
+                criteria: {
+                    url: "my/url"
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({ url: "my/url" })).to.exist;
+            expect(registry.findMatchFor({ url: "my/url" })).to.exist;
+        });
     });
 });
 
