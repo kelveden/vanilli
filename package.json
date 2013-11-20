@@ -1,37 +1,38 @@
 {
-    "name": "vanilli",
-    "version": "0.0.1",
-    "description": "",
-    "main": "vanilli.js",
-    "scripts": {
-        "test": "node_modules/.bin/grunt ci"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/kelveden/vanilli"
-    },
-    "keywords": [],
-    "author": "Alistair Dutton <kelveden@gmail.com>",
-    "license": "BSD-3-Clause",
-    "bugs": {
-        "url": "https://github.com/vanilli/issues"
-    },
-    "dependencies": {
-        "restify": "~2.6.0",
-        "bunyan": "~0.22.0",
-        "when": "~2.6.0",
-        "lodash": "~2.3.0"
-    },
-    "devDependencies": {
-        "grunt": "*",
-        "grunt-cli": "*",
-        "grunt-contrib-jshint": "~0.7.2",
-        "grunt-contrib-watch": "~0.5.3",
-        "grunt-mocha-cli": "~1.1.0",
-        "grunt-complexity": "~0.1.3",
-        "mocha": "*",
-        "chai": "*",
-        "portfinder": "~0.2.1",
-        "supertest": "~0.8.1"
-    }
+  "name": "vanilli",
+  "version": "0.0.1",
+  "description": "",
+  "main": "vanilli.js",
+  "scripts": {
+    "test": "node_modules/.bin/grunt ci"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kelveden/vanilli"
+  },
+  "keywords": [],
+  "author": "Alistair Dutton <kelveden@gmail.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/vanilli/issues"
+  },
+  "dependencies": {
+    "restify": "~2.6.0",
+    "bunyan": "~0.22.0",
+    "when": "~2.6.0",
+    "lodash": "~2.3.0"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-cli": "*",
+    "grunt-contrib-jshint": "~0.7.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-mocha-cli": "~1.1.0",
+    "grunt-complexity": "~0.1.3",
+    "mocha": "*",
+    "chai": "*",
+    "portfinder": "~0.2.1",
+    "supertest": "~0.8.1",
+    "better-stack-traces": "~1.0.0"
+  }
 }

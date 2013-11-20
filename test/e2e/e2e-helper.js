@@ -1,6 +1,14 @@
 var when = require('when'),
     portfinder = require('portfinder');
 
+require("better-stack-traces").install({
+    before: 0,
+    after: 0,
+    collapseLibraries: true
+});
+
+require('chai').Assertion.includeStack = true;
+
 portfinder.basePort = 14000;
 
 function getFreePort() {
