@@ -2,8 +2,8 @@
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     helper = require('./e2e-helper.js'),
-    expect = require('chai').expect,
-    chai = require('chai');
+    chai = require('chai'),
+    expect = chai.expect;
 
 chai.use(require('chai-http'));
 
