@@ -1,9 +1,11 @@
+/* jshint expr:true */
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     helper = require('./e2e-helper.js'),
     expect = require('chai').expect,
-    chai = require('chai'),
-    request = require('supertest');
+    chai = require('chai');
+
+chai.use(require('chai-http'));
 
 describe('Vanilli', function () {
     var apiPort, fakePort;
@@ -39,7 +41,7 @@ describe('Vanilli', function () {
 
         beforeEach(function () {
             vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = request(vanilliEnvironment.apiServer);
+            apiClient = chai.request(vanilliEnvironment.apiServer.url);
         });
 
         afterEach(function () {
@@ -48,7 +50,12 @@ describe('Vanilli', function () {
 
         it('MUST be pingable', function (done) {
             apiClient.get('/ping')
-                .expect(200, { ping: "pong" }, done);
+                .res(function (res) {
+                    expect(res).to.be.json;
+                    expect(res.status).to.be.equal(200);
+                    expect(res.body.ping).to.be.equal("pong");
+                    done();
+                });
         });
     });
 });

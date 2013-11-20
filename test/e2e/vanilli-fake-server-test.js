@@ -1,10 +1,11 @@
+/* jshint expr:true */
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     helper = require('./e2e-helper.js'),
-    ender = helper.ender,
     expect = require('chai').expect,
-    chai = require('chai'),
-    request = require('supertest');
+    chai = require('chai');
+
+chai.use(require('chai-http'));
 
 describe('The Vanilli fake server', function () {
     var apiPort, fakePort,
@@ -24,8 +25,8 @@ describe('The Vanilli fake server', function () {
 
         beforeEach(function () {
             vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = request(vanilliEnvironment.apiServer);
-            fakeClient = request(vanilliEnvironment.fakeServer);
+            apiClient = chai.request(vanilliEnvironment.apiServer.url);
+            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
         });
 
         afterEach(function () {
@@ -34,45 +35,64 @@ describe('The Vanilli fake server', function () {
 
         it('MUST have a url', function (done) {
             apiClient.post('/expect')
-                .set('Content-Type', 'application/json')
-                .send({
-                    criteria: {
-                    },
-                    respondWith: {
-                        entity: { something: "else" },
-                        "Content-Type": "application/json"
-                    }
+                .req(function (req) {
+                    req.set('Content-Type', 'application/json');
+                    req.send({
+                        criteria: {
+                        },
+                        respondWith: {
+                            entity: { something: "else" },
+                            "Content-Type": "application/json"
+                        }
+                    });
                 })
-                .expect(400, /url/, done);
+                .res(function (res) {
+                    expect(res.status).to.be.equal(400);
+                    expect(res).to.be.json;
+                    expect(res.body).to.match(/url/);
+                    done();
+                });
         });
 
         it('MUST have a contentType if a response entity is specified', function (done) {
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: 'my/url'
-                    },
-                    respondWith: {
-                        status: 200,
-                        entity: {
-                            something: "else"
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: 'my/url'
+                        },
+                        respondWith: {
+                            status: 200,
+                                entity: {
+                                something: "else"
+                            }
                         }
-                    }
+                    });
                 })
-                .expect(400, /contentType/, done);
+                .res(function (res) {
+                    expect(res.status).to.be.equal(400);
+                    expect(res).to.be.json;
+                    expect(res.body).to.match(/contentType/);
+                    done();
+                });
         });
 
         it('CAN have no response content type if there is no response entity', function (done) {
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: 'my/url'
-                    },
-                    respondWith: {
-                        status: 200
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: 'my/url'
+                        },
+                        respondWith: {
+                            status: 200
+                        }
+                    });
                 })
-                .expect(200, done);
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    done();
+                });
         });
 
         it('MUST match against request with a matching url', function (done) {
@@ -80,37 +100,49 @@ describe('The Vanilli fake server', function () {
                 url = "/my/url";
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: url
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: url
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(url)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST match against request with the same method', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        method: 'DELETE'
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                method: 'DELETE'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.del(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it("MUST match against request with headers that are included in the stub", function (done) {
@@ -119,22 +151,30 @@ describe('The Vanilli fake server', function () {
                 expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        headers: {
-                            "My-Header": expectedHeaderValue
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                headers: {
+                                "My-Header": expectedHeaderValue
+                            }
+                        },
+                        respondWith: {
+                            status: expectedStatus
                         }
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(dummyUrl)
-                        .set("My-Header", expectedHeaderValue)
-                        .expect(expectedStatus, done);
-                }));
+                        .req(function (req) {
+                            req.set("My-Header", expectedHeaderValue);
+                        })
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it("MUST match against request with the same response entity");
@@ -146,8 +186,8 @@ describe('The Vanilli fake server', function () {
 
         beforeEach(function () {
             vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = request(vanilliEnvironment.apiServer);
-            fakeClient = request(vanilliEnvironment.fakeServer);
+            apiClient = chai.request(vanilliEnvironment.apiServer.url);
+            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
         });
 
         afterEach(function () {
@@ -158,81 +198,110 @@ describe('The Vanilli fake server', function () {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        method: 'GET'
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                method: 'GET'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST be honoured for DELETE request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        method: 'DELETE'
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                method: 'DELETE'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.del(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST be honoured for POST request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        method: 'POST'
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                method: 'POST'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.post(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST be honoured for PUT request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl,
-                        method: 'PUT'
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                                method: 'PUT'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.put(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST be honoured with a 404 if no stub matches', function (done) {
             fakeClient.get(dummyUrl)
-                .expect(404, { vanilli: 'Stub not found.' }, done);
+                .res(function (res) {
+                    expect(res.status).to.be.equal(404);
+                    expect(res).to.be.json;
+                    expect(res.body.vanilli).to.be.equal('Stub not found.');
+                    done();
+                });
         });
     });
 
@@ -241,8 +310,8 @@ describe('The Vanilli fake server', function () {
 
         beforeEach(function () {
             vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = request(vanilliEnvironment.apiServer);
-            fakeClient = request(vanilliEnvironment.fakeServer);
+            apiClient = chai.request(vanilliEnvironment.apiServer.url);
+            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
         });
 
         afterEach(function () {
@@ -253,81 +322,105 @@ describe('The Vanilli fake server', function () {
             var expectedStatus = 234;
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    respondWith: {
-                        status: expectedStatus
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(dummyUrl)
-                        .expect(expectedStatus, done);
-                }));
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
         });
 
         it('MUST have the entity specified in the matching stub', function (done) {
             var expectedEntity = {
-                some: "data"
+                myfield: "mydata"
             };
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    respondWith: {
-                        status: dummyStatus,
-                        entity: expectedEntity,
-                        contentType: "application/json"
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                                entity: expectedEntity,
+                                contentType: "application/json"
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.del(dummyUrl)
-                        .expect(dummyStatus, expectedEntity, done);
-                }));
+                        .res(function (res) {
+                            expect(res.body.myfield).to.be.equal('mydata');
+                            done();
+                        });
+                });
         });
 
         it('MUST have the content type specified in the matching stub', function (done) {
             var expectedContentType = "text/plain";
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    respondWith: {
-                        status: dummyStatus,
-                        entity: "some data",
-                        contentType: expectedContentType
-                    }
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                                entity: "some data",
+                                contentType: expectedContentType
+                        }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(dummyUrl)
-                        .expect("Content-Type", expectedContentType, done);
-                }));
+                        .res(function (res) {
+                            expect(res).to.have.header('content-type', expectedContentType);
+                            done();
+                        });
+                });
         });
 
         it('MUST have the headers specified in the matching stub', function (done) {
             var expectedHeaderValue = "myvalue";
 
             apiClient.post('/expect')
-                .send({
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    respondWith: {
-                        status: dummyStatus,
-                        headers: {
-                            "My-Header": expectedHeaderValue
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                                headers: {
+                                "My-Header": expectedHeaderValue
+                            }
                         }
-                    }
+                    });
                 })
-                .end(ender(function () {
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
                     fakeClient.get(dummyUrl)
-                        .expect("My-Header", expectedHeaderValue, done);
-                }));
+                        .res(function (res) {
+                            expect(res).to.have.header('my-header', expectedHeaderValue);
+                            done();
+                        });
+                });
         });
     });
 });

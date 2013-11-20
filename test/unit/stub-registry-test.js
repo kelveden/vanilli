@@ -1,6 +1,5 @@
 /* jshint expr:true */
 var vanilliLogLevel = "error",
-    mocha = require('mocha'),
     expect = require('chai').expect,
     _ = require('lodash'),
     log = require('bunyan').createLogger({
