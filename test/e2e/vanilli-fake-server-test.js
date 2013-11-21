@@ -41,8 +41,7 @@ describe('The Vanilli fake server', function () {
                         criteria: {
                         },
                         respondWith: {
-                            entity: { something: "else" },
-                            "Content-Type": "application/json"
+                            status: dummyStatus
                         }
                     });
                 })
