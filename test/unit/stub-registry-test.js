@@ -35,6 +35,8 @@ describe('The stub registry', function () {
                 criteria: dummyCriteria,
                 respondWith: dummyRespondWith
             });
+
+            expect(registry.size).to.equal(1);
         });
 
         it('rejects a stub without criteria', function () {
@@ -408,6 +410,35 @@ describe('The stub registry', function () {
 
             expect(registry.findMatchFor({ url: "my/url" })).to.exist;
             expect(registry.findMatchFor({ url: "my/url" })).to.exist;
+        });
+    });
+
+
+    describe('clearer', function () {
+        var registry;
+
+        beforeEach(function () {
+            registry = require('../../lib/stub-registry.js').create(log);
+        });
+
+        it('can clear down all stubs at once', function () {
+            // Given
+            registry.add({
+                criteria: dummyCriteria,
+                respondWith: dummyRespondWith
+            });
+            registry.add({
+                criteria: dummyCriteria,
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.size).to.equal(2);
+
+            // When
+            registry.clear();
+
+            // Then
+            expect(registry.size).to.equal(0);
         });
     });
 });

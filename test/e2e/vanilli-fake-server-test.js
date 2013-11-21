@@ -59,6 +59,39 @@ describe('The Vanilli fake server', function () {
             });
     });
 
+    it('MUST allow clearing down all stubs', function (done) {
+        apiClient.post('/expect')
+            .req(function (req) {
+                req.send({
+                    criteria: {
+                        url: dummyUrl
+                    },
+                    respondWith: {
+                        status: dummyStatus
+                    }
+                });
+            })
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+
+                fakeClient.get(dummyUrl)
+                    .res(function (res) {
+                        expect(res.status).to.be.equal(dummyStatus);
+
+                        apiClient.del('/expect')
+                            .res(function (res) {
+                                expect(res.status).to.be.equal(200);
+
+                                fakeClient.get(dummyUrl)
+                                    .res(function (res) {
+                                        expect(res.status).to.be.equal(404);
+                                        done();
+                                    });
+                            });
+                    });
+            });
+    });
+
     describe('stubs', function () {
         it('MUST have a url', function (done) {
             apiClient.post('/expect')
