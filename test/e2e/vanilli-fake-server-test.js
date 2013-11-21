@@ -537,5 +537,33 @@ describe('The Vanilli fake server', function () {
                         });
                 });
         });
+
+        it('MUST include CORS headers in stub responses', function (done) {
+            var stubUrl = "/my/url";
+
+            apiClient.post('/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: stubUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+
+                    fakeClient.options(stubUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(200);
+                            expect(res.header['access-control-allow-origin']).to.equal("*");
+                            expect(res.header['access-control-allow-methods']).to.deep.equal("GET, DELETE, PUT, POST, OPTIONS");
+                            expect(res.header['access-control-allow-headers']).to.exist;
+                            done();
+                        });
+                });
+        });
     });
 });

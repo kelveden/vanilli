@@ -52,8 +52,21 @@ describe('Vanilli', function () {
             apiClient.get('/ping')
                 .res(function (res) {
                     expect(res).to.be.json;
+                    expect(res.status).to.equal(200);
+                    expect(res.body.ping).to.equal("pong");
+                    done();
+                });
+        });
+
+        it('MUST include CORS headers in responses', function (done) {
+            apiClient.options('/expect')
+                .res(function (res) {
+                    console.log(res.header);
+
                     expect(res.status).to.be.equal(200);
-                    expect(res.body.ping).to.be.equal("pong");
+                    expect(res.header['access-control-allow-origin']).to.equal("*");
+                    expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, DELETE, POST");
+                    expect(res.header['access-control-allow-headers']).to.exist;
                     done();
                 });
         });
