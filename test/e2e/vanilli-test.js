@@ -1,7 +1,6 @@
 /* jshint expr:true */
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
-    helper = require('./e2e-helper.js'),
     chai = require('chai'),
     expect = chai.expect;
 

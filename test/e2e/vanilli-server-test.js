@@ -1,10 +1,19 @@
 /* jshint expr:true */
 var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
-    helper = require('./e2e-helper.js'),
     chai = require('chai'),
-    expect = require('chai').expect;
+    expect = require('chai').expect,
+    portfinder = require('portfinder');
 
+require("better-stack-traces").install({
+    before: 0,
+    after: 0,
+    collapseLibraries: true
+});
+
+portfinder.basePort = 14000;
+
+chai.Assertion.includeStack = true;
 chai.use(require('chai-http'));
 
 describe('The Vanilli server', function () {
@@ -14,10 +23,14 @@ describe('The Vanilli server', function () {
         vanilliClient, vanilliServer;
 
     before(function (done) {
-        helper.assignPorts(
-            function (port) { vanilliPort = port; }
-        )
-        .then(done);
+        portfinder.getPort(function (err, port) {
+            if (err) {
+                done(err);
+            } else {
+                vanilliPort = port;
+                done();
+            }
+        });
     });
 
     beforeEach(function () {
@@ -133,7 +146,7 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: 200,
-                                entity: {
+                            entity: {
                                 something: "else"
                             }
                         }
@@ -198,7 +211,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                method: 'DELETE'
+                            method: 'DELETE'
                         },
                         respondWith: {
                             status: expectedStatus
@@ -225,7 +238,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                headers: {
+                            headers: {
                                 "My-Header": expectedHeaderValue
                             }
                         },
@@ -376,7 +389,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                method: 'GET'
+                            method: 'GET'
                         },
                         respondWith: {
                             status: expectedStatus
@@ -401,7 +414,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                method: 'DELETE'
+                            method: 'DELETE'
                         },
                         respondWith: {
                             status: expectedStatus
@@ -426,7 +439,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                method: 'POST'
+                            method: 'POST'
                         },
                         respondWith: {
                             status: expectedStatus
@@ -451,7 +464,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                                method: 'PUT'
+                            method: 'PUT'
                         },
                         respondWith: {
                             status: expectedStatus
@@ -517,8 +530,8 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: dummyStatus,
-                                entity: expectedEntity,
-                                contentType: "application/json"
+                            entity: expectedEntity,
+                            contentType: "application/json"
                         }
                     });
                 })
@@ -543,8 +556,8 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: dummyStatus,
-                                entity: "some data",
-                                contentType: expectedContentType
+                            entity: "some data",
+                            contentType: expectedContentType
                         }
                     });
                 })
@@ -569,7 +582,7 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: dummyStatus,
-                                headers: {
+                            headers: {
                                 "My-Header": expectedHeaderValue
                             }
                         }

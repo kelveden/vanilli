@@ -19,7 +19,6 @@
   "dependencies": {
     "restify": "~2.6.0",
     "bunyan": "~0.22.0",
-    "when": "~2.6.0",
     "lodash": "~2.3.0"
   },
   "devDependencies": {
