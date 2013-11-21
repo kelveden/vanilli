@@ -61,8 +61,6 @@ describe('Vanilli', function () {
         it('MUST include CORS headers in responses', function (done) {
             apiClient.options('/expect')
                 .res(function (res) {
-                    console.log(res.header);
-
                     expect(res.status).to.be.equal(200);
                     expect(res.header['access-control-allow-origin']).to.equal("*");
                     expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, DELETE, POST");
