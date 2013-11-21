@@ -29,11 +29,9 @@ function getFreePort() {
 /**
  * Assigns two free ports - passing each into the specified success callbacks.
  */
-exports.assignPorts = function(apiPortSuccess, fakePortSuccess) {
+exports.assignPorts = function(success) {
     return getFreePort()
-        .then(apiPortSuccess)
-        .then(getFreePort)
-        .then(fakePortSuccess);
+        .then(success);
 };
 
 /**
