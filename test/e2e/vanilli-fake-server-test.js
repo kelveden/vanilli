@@ -10,7 +10,8 @@ chai.use(require('chai-http'));
 describe('The Vanilli fake server', function () {
     var apiPort, fakePort,
         dummyUrl = "/some/url",
-        dummyStatus = 200;
+        dummyStatus = 200,
+        fakeClient, apiClient, vanilliEnvironment;
 
     before(function (done) {
         helper.assignPorts(
@@ -20,19 +21,45 @@ describe('The Vanilli fake server', function () {
         .then(done);
     });
 
+    beforeEach(function () {
+        vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
+        apiClient = chai.request(vanilliEnvironment.apiServer.url);
+        fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
+    });
+
+    afterEach(function () {
+        vanilliEnvironment.stop();
+    });
+
+    it('MUST include CORS headers in responses', function (done) {
+        var stubUrl = "/my/url";
+
+        apiClient.post('/expect')
+            .req(function (req) {
+                req.send({
+                    criteria: {
+                        url: stubUrl
+                    },
+                    respondWith: {
+                        status: dummyStatus
+                    }
+                });
+            })
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+
+                fakeClient.options(stubUrl)
+                    .res(function (res) {
+                        expect(res.status).to.be.equal(200);
+                        expect(res.header['access-control-allow-origin']).to.equal("*");
+                        expect(res.header['access-control-allow-methods']).to.deep.equal("GET, DELETE, PUT, POST, OPTIONS");
+                        expect(res.header['access-control-allow-headers']).to.exist;
+                        done();
+                    });
+            });
+    });
+
     describe('stubs', function () {
-        var fakeClient, apiClient, vanilliEnvironment;
-
-        beforeEach(function () {
-            vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = chai.request(vanilliEnvironment.apiServer.url);
-            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
-        });
-
-        afterEach(function () {
-            vanilliEnvironment.stop();
-        });
-
         it('MUST have a url', function (done) {
             apiClient.post('/expect')
                 .req(function (req) {
@@ -297,18 +324,6 @@ describe('The Vanilli fake server', function () {
     });
 
     describe('requests', function () {
-        var fakeClient, apiClient, vanilliEnvironment;
-
-        beforeEach(function () {
-            vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = chai.request(vanilliEnvironment.apiServer.url);
-            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
-        });
-
-        afterEach(function () {
-            vanilliEnvironment.stop();
-        });
-
         it('MUST be honoured for GET request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
@@ -421,18 +436,6 @@ describe('The Vanilli fake server', function () {
     });
 
     describe('responses', function () {
-        var fakeClient, apiClient, vanilliEnvironment;
-
-        beforeEach(function () {
-            vanilliEnvironment = vanilli.startVanilli({ apiPort: apiPort, fakePort: fakePort, logLevel: vanilliLogLevel });
-            apiClient = chai.request(vanilliEnvironment.apiServer.url);
-            fakeClient = chai.request(vanilliEnvironment.fakeServer.url);
-        });
-
-        afterEach(function () {
-            vanilliEnvironment.stop();
-        });
-
         it('MUST have the status specified in the matching stub', function (done) {
             var expectedStatus = 234;
 
@@ -533,34 +536,6 @@ describe('The Vanilli fake server', function () {
                     fakeClient.get(dummyUrl)
                         .res(function (res) {
                             expect(res).to.have.header('my-header', expectedHeaderValue);
-                            done();
-                        });
-                });
-        });
-
-        it('MUST include CORS headers in stub responses', function (done) {
-            var stubUrl = "/my/url";
-
-            apiClient.post('/expect')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: stubUrl
-                        },
-                        respondWith: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-
-                    fakeClient.options(stubUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(200);
-                            expect(res.header['access-control-allow-origin']).to.equal("*");
-                            expect(res.header['access-control-allow-methods']).to.deep.equal("GET, DELETE, PUT, POST, OPTIONS");
-                            expect(res.header['access-control-allow-headers']).to.exist;
                             done();
                         });
                 });
