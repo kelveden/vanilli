@@ -75,24 +75,24 @@ describe('The stub registry', function () {
             }).to.throw(/status/);
         });
 
-        it('rejects a stub with a respondWith entity but no content type', function () {
+        it('rejects a stub with a respondWith body but no content type', function () {
             expect(function () {
                 registry.add({
                     criteria: dummyCriteria,
                     respondWith: {
                         status: dummyStatus,
-                        entity: {}
+                        body: {}
                     }
                 });
             }).to.throw(/contentType/);
         });
 
-        it('rejects a stub with a criteria entity but no content type', function () {
+        it('rejects a stub with a criteria body but no content type', function () {
             expect(function () {
                 registry.add({
                     criteria: {
                         url: dummyUrl,
-                        entity: { }
+                        body: { }
                     },
                     respondWith: dummyRespondWith
                 });
@@ -278,11 +278,11 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ url: "my/url", headers: {} })).to.not.exist;
         });
 
-        it('will match on stub specified with entity content text', function () {
+        it('will match on stub specified with body content text', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
-                    entity: {
+                    body: {
                         myfield: "myvalue"
                     },
                     contentType: "application/json"
@@ -301,11 +301,11 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will match on stub specified with entity content regex', function () {
+        it('will match on stub specified with body content regex', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
-                    entity: /"myfield":"myvalue"/,
+                    body: /"myfield":"myvalue"/,
                     contentType: "application/json"
                 },
                 respondWith: dummyRespondWith
@@ -322,12 +322,12 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will match on stub specified with entity content matching function', function () {
+        it('will match on stub specified with body content matching function', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
-                    entity: function (actualEntity) {
-                        return actualEntity.myfield === "myvalue";
+                    body: function (actualbody) {
+                        return actualbody.myfield === "myvalue";
                     },
                     contentType: "application/json"
                 },
@@ -345,11 +345,11 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will NOT match on stub specified with matching entity but different content type', function () {
+        it('will NOT match on stub specified with matching body but different content type', function () {
             registry.add({
                 criteria: {
                     url: dummyUrl,
-                    entity: {
+                    body: {
                         myfield: "myvalue"
                     },
                     contentType: "application/json"

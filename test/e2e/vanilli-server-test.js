@@ -137,7 +137,7 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it('MUST have a contentType if a response entity is specified', function (done) {
+        it('MUST have a contentType if a response body is specified', function (done) {
             vanilliClient.post('/_vanilli/expect')
                 .req(function (req) {
                     req.send({
@@ -146,7 +146,7 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: 200,
-                            entity: {
+                            body: {
                                 something: "else"
                             }
                         }
@@ -160,7 +160,7 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it('CAN have no response content type if there is no response entity', function (done) {
+        it('CAN have no response content type if there is no response body', function (done) {
             vanilliClient.post('/_vanilli/expect')
                 .req(function (req) {
                     req.send({
@@ -260,8 +260,8 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it("MUST match against request with the same response entity", function (done) {
-            var expectedEntity = {
+        it("MUST match against request with the same response body", function (done) {
+            var expectedbody = {
                 myfield: "myvalue"
             };
 
@@ -270,7 +270,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                            entity: expectedEntity,
+                            body: expectedbody,
                             contentType: 'application/json'
                         },
                         respondWith: {
@@ -283,7 +283,7 @@ describe('The Vanilli server', function () {
                     vanilliClient.post(dummyUrl)
                         .req(function (req) {
                             req.set('Content-Type', 'application/json');
-                            req.send(expectedEntity);
+                            req.send(expectedbody);
                         })
                         .res(function (res) {
                             expect(res.status).to.equal(dummyStatus);
@@ -292,8 +292,8 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it("MUST NOT match against request with no response entity if the stub matches against entity", function (done) {
-            var expectedEntity = {
+        it("MUST NOT match against request with no response body if the stub matches against body", function (done) {
+            var expectedbody = {
                 myfield: "myvalue"
             };
 
@@ -302,7 +302,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                             url: dummyUrl,
-                            entity: expectedEntity,
+                            body: expectedbody,
                             contentType: 'application/json'
                         },
                         respondWith: {
@@ -517,8 +517,8 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it('MUST have the entity specified in the matching stub', function (done) {
-            var expectedEntity = {
+        it('MUST have the body specified in the matching stub', function (done) {
+            var expectedbody = {
                 myfield: "mydata"
             };
 
@@ -530,7 +530,7 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: dummyStatus,
-                            entity: expectedEntity,
+                            body: expectedbody,
                             contentType: "application/json"
                         }
                     });
@@ -556,7 +556,7 @@ describe('The Vanilli server', function () {
                         },
                         respondWith: {
                             status: dummyStatus,
-                            entity: "some data",
+                            body: "some data",
                             contentType: expectedContentType
                         }
                     });
