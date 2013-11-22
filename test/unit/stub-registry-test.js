@@ -151,7 +151,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ url: "my/url" })).to.exist;
         });
 
-        it.only('will match on request with url with leading "/"', function () {
+        it('will match on request with url with leading "/"', function () {
             registry.add({
                 criteria: {
                     url: "/my/url"
