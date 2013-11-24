@@ -19,7 +19,8 @@
   "dependencies": {
     "restify": "~2.6.0",
     "bunyan": "~0.22.0",
-    "lodash": "~2.3.0"
+    "lodash": "~2.3.0",
+    "node-uuid": "~1.4.1"
   },
   "devDependencies": {
     "grunt": "*",

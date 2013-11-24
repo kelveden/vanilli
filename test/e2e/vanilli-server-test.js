@@ -116,6 +116,48 @@ describe('The Vanilli server', function () {
             });
     });
 
+    it('MUST allow adding of single stubs at a time', function (done) {
+        var dummyStub = {
+            criteria: {
+                url: dummyUrl
+            },
+            respondWith: {
+                status: dummyStatus
+            }
+        };
+
+        vanilliClient.post('/_vanilli/expect')
+            .req(function (req) {
+                req.send(dummyStub);
+            })
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+                expect(res.body).to.have.length(1);
+                done();
+            });
+    });
+
+    it('MUST allow adding multiple stubs at a time', function (done) {
+        var dummyStub = {
+            criteria: {
+                url: dummyUrl
+            },
+            respondWith: {
+                status: dummyStatus
+            }
+        };
+
+        vanilliClient.post('/_vanilli/expect')
+            .req(function (req) {
+                req.send([ dummyStub, dummyStub ]);
+            })
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+                expect(res.body).to.have.length(2);
+                done();
+            });
+    });
+
     describe('stubs', function () {
         it('MUST have a url', function (done) {
             vanilliClient.post('/_vanilli/expect')

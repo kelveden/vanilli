@@ -9,7 +9,7 @@ var vanilliLogLevel = "error",
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl =/.+/,
+        dummyUrl = /.+/,
         dummyCriteria = {
             url: dummyUrl
         },
@@ -97,6 +97,21 @@ describe('The stub registry', function () {
                     respondWith: dummyRespondWith
                 });
             }).to.throw(/contentType/);
+        });
+
+        it('generates a unique id for the added stub', function () {
+            var dummyStub = {
+                    criteria: {
+                        url: dummyUrl
+                    },
+                    respondWith: dummyRespondWith
+                },
+                id1 = registry.add(dummyStub),
+                id2 = registry.add(dummyStub);
+
+            expect(id1).to.exist;
+            expect(id2).to.exist;
+            expect(id1).to.not.equal(id2);
         });
     });
 
