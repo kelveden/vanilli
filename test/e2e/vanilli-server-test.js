@@ -1,5 +1,5 @@
 /* jshint expr:true */
-var vanilliLogLevel = "error",
+var vanilliLogLevel = "debug",
     vanilli = require('../../lib/vanilli.js'),
     chai = require('chai'),
     expect = require('chai').expect,
@@ -55,7 +55,7 @@ describe('The Vanilli server', function () {
     it('MUST include CORS headers in responses', function (done) {
         var stubUrl = "/my/url";
 
-        vanilliClient.post('/_vanilli/expect')
+        vanilliClient.post('/_vanilli/stub')
             .req(function (req) {
                 req.send({
                     criteria: {
@@ -69,7 +69,7 @@ describe('The Vanilli server', function () {
             .res(function (res) {
                 expect(res.status).to.be.equal(200);
                 expect(res.header['access-control-allow-origin']).to.equal("*");
-                expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, DELETE, POST");
+                expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, POST");
                 expect(res.header['access-control-allow-headers']).to.exist;
 
                 vanilliClient.options(stubUrl)
@@ -84,7 +84,7 @@ describe('The Vanilli server', function () {
     });
 
     it('MUST allow clearing down all stubs', function (done) {
-        vanilliClient.post('/_vanilli/expect')
+        vanilliClient.post('/_vanilli/stub')
             .req(function (req) {
                 req.send({
                     criteria: {
@@ -102,8 +102,9 @@ describe('The Vanilli server', function () {
                     .res(function (res) {
                         expect(res.status).to.be.equal(dummyStatus);
 
-                        vanilliClient.del('/_vanilli/expect')
+                        vanilliClient.del('/_vanilli/registry')
                             .res(function (res) {
+                                console.log(res.body);
                                 expect(res.status).to.be.equal(200);
 
                                 vanilliClient.get(dummyUrl)
@@ -126,7 +127,7 @@ describe('The Vanilli server', function () {
             }
         };
 
-        vanilliClient.post('/_vanilli/expect')
+        vanilliClient.post('/_vanilli/stub')
             .req(function (req) {
                 req.send(dummyStub);
             })
@@ -147,7 +148,7 @@ describe('The Vanilli server', function () {
             }
         };
 
-        vanilliClient.post('/_vanilli/expect')
+        vanilliClient.post('/_vanilli/stub')
             .req(function (req) {
                 req.send([ dummyStub, dummyStub ]);
             })
@@ -160,7 +161,7 @@ describe('The Vanilli server', function () {
 
     describe('stubs', function () {
         it('MUST have a url', function (done) {
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.set('Content-Type', 'application/json');
                     req.send({
@@ -180,7 +181,7 @@ describe('The Vanilli server', function () {
         });
 
         it('MUST have a contentType if a response body is specified', function (done) {
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -203,7 +204,7 @@ describe('The Vanilli server', function () {
         });
 
         it('CAN have no response content type if there is no response body', function (done) {
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -224,7 +225,7 @@ describe('The Vanilli server', function () {
             var expectedStatus = 234,
                 url = "/my/url";
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -248,7 +249,7 @@ describe('The Vanilli server', function () {
         it('MUST match against request with the same method', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -275,7 +276,7 @@ describe('The Vanilli server', function () {
             var expectedHeaderValue = "myvalue",
                 expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -307,7 +308,7 @@ describe('The Vanilli server', function () {
                 myfield: "myvalue"
             };
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -322,12 +323,13 @@ describe('The Vanilli server', function () {
                 })
                 .res(function (res) {
                     expect(res.status).to.be.equal(200);
-                    vanilliClient.post(dummyUrl)
+                    vanilliClient.get(dummyUrl)
                         .req(function (req) {
                             req.set('Content-Type', 'application/json');
                             req.send(expectedbody);
                         })
                         .res(function (res) {
+                            console.log(res.body);
                             expect(res.status).to.equal(dummyStatus);
                             done();
                         });
@@ -339,7 +341,7 @@ describe('The Vanilli server', function () {
                 myfield: "myvalue"
             };
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -362,40 +364,10 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it("MUST ONLY match the number of times specified in the stub", function (done) {
+        it("MUST match any number times", function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        respondWith: {
-                            status: expectedStatus
-                        },
-                        times: 1
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-
-                            vanilliClient.get(dummyUrl)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(404);
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it("MUST match any number times if not specified explicitly in the stub", function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -422,11 +394,105 @@ describe('The Vanilli server', function () {
         });
     });
 
+    describe('expectations', function () {
+        it("MUST match any number times", function (done) {
+            var expectedStatus = 234;
+
+            vanilliClient.post('/_vanilli/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        },
+                        times: 1
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+
+                            vanilliClient.get(dummyUrl)
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(expectedStatus);
+                                    done();
+                                });
+                        });
+                });
+        });
+
+        it("MUST be considered verified if they have been matched the expected number of times", function (done) {
+            var expectedStatus = 234;
+
+            vanilliClient.post('/_vanilli/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        },
+                        times: 1
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+
+                            vanilliClient.get('/_vanilli/expect/verification')
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(200);
+                                    expect(res.body.errors).to.be.empty;
+                                    done();
+                                });
+                        });
+                });
+        });
+
+        it("MUST NOT be considered verified if they have been not matched the expected number of times", function (done) {
+            var expectedStatus = 234;
+
+            vanilliClient.post('/_vanilli/expect')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        },
+                        times: 2
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+
+                            vanilliClient.get('/_vanilli/expect/verification')
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(200);
+                                    expect(res.body.errors).to.have.length(1);
+                                    done();
+                                });
+                        });
+                });
+        });
+    });
+
     describe('requests', function () {
         it('MUST be honoured for GET request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -451,7 +517,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for DELETE request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -476,7 +542,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for POST request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -501,7 +567,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for PUT request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -538,7 +604,7 @@ describe('The Vanilli server', function () {
         it('MUST have the status specified in the matching stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -564,7 +630,7 @@ describe('The Vanilli server', function () {
                 myfield: "mydata"
             };
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -579,7 +645,7 @@ describe('The Vanilli server', function () {
                 })
                 .res(function (res) {
                     expect(res.status).to.be.equal(200);
-                    vanilliClient.del(dummyUrl)
+                    vanilliClient.get(dummyUrl)
                         .res(function (res) {
                             expect(res.body.myfield).to.be.equal('mydata');
                             done();
@@ -590,7 +656,7 @@ describe('The Vanilli server', function () {
         it('MUST have the content type specified in the matching stub', function (done) {
             var expectedContentType = "text/plain";
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -616,7 +682,7 @@ describe('The Vanilli server', function () {
         it('MUST have the headers specified in the matching stub', function (done) {
             var expectedHeaderValue = "myvalue";
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stub')
                 .req(function (req) {
                     req.send({
                         criteria: {
