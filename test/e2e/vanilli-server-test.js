@@ -69,7 +69,7 @@ describe('The Vanilli server', function () {
             .res(function (res) {
                 expect(res.status).to.be.equal(200);
                 expect(res.header['access-control-allow-origin']).to.equal("*");
-                expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, POST");
+                expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, DELETE, POST");
                 expect(res.header['access-control-allow-headers']).to.exist;
 
                 vanilliClient.options(stubUrl)
@@ -102,7 +102,7 @@ describe('The Vanilli server', function () {
                     .res(function (res) {
                         expect(res.status).to.be.equal(dummyStatus);
 
-                        vanilliClient.del('/_vanilli/registry')
+                        vanilliClient.del('/_vanilli/stubs')
                             .res(function (res) {
                                 console.log(res.body);
                                 expect(res.status).to.be.equal(200);
