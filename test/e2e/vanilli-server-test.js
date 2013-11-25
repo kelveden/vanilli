@@ -1,5 +1,5 @@
 /* jshint expr:true */
-var vanilliLogLevel = "debug",
+var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     chai = require('chai'),
     expect = require('chai').expect,
