@@ -15,6 +15,12 @@ describe('The stub registry', function () {
         },
         dummyRespondWith = {
             status: dummyStatus
+        },
+        dummyStub = {
+            criteria: {
+                url: dummyUrl
+            },
+            respondWith: dummyRespondWith
         };
 
     it('can be instantiated', function () {
@@ -106,12 +112,66 @@ describe('The stub registry', function () {
                     },
                     respondWith: dummyRespondWith
                 },
-                id1 = registry.add(dummyStub),
-                id2 = registry.add(dummyStub);
+                id1 = registry.add(dummyStub).id,
+                id2 = registry.add(dummyStub).id;
 
             expect(id1).to.exist;
             expect(id2).to.exist;
             expect(id1).to.not.equal(id2);
+        });
+
+        it('prefers the Content-Type header criteria over the contentType field', function () {
+            var stub = registry.add({
+                criteria: {
+                    url: dummyUrl,
+                    body: { some: "data" },
+                    contentType: 'another/contenttype',
+                    headers: {
+                        'Content-Type': 'my/contenttype'
+                    }
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(stub.criteria.contentType).to.equal('my/contenttype');
+        });
+
+        it('prefers the Content-Type response header over the contentType field', function () {
+            var stub = registry.add({
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: dummyStatus,
+                    body: { some: "data" },
+                    contentType: 'another/contenttype',
+                    headers: {
+                        'Content-Type': 'my/contenttype'
+                    }
+                }
+            });
+
+            expect(stub.respondWith.contentType).to.equal('my/contenttype');
+        });
+    });
+
+    describe('getter', function () {
+        var registry;
+
+        beforeEach(function () {
+            registry = require('../../lib/stub-registry.js').create(log);
+        });
+
+        it('can be used to get a stub by id', function () {
+            var stub = registry.add(dummyStub);
+
+            expect(registry.getById(stub.id).id).to.equal(stub.id);
+        });
+
+        it('will return null if no stub is found with the id', function () {
+            registry.add(dummyStub);
+
+            expect(registry.getById("rubbish")).to.not.exist;
         });
     });
 
