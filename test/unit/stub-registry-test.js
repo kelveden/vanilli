@@ -47,36 +47,18 @@ describe('The stub registry', function () {
         });
 
         it('can be used to add an expectation', function () {
-            var expectation = registry.addExpectation({
+            var expectation = registry.addStub({
                 criteria: dummyCriteria,
-                respondWith: dummyRespondWith
+                respondWith: dummyRespondWith,
+                times: 1
             });
 
             expect(registry.getById(expectation.id)).to.exist;
             expect(expectation.expect).to.be.true;
         });
 
-        it('rejects a stub with \'times\' specified', function () {
-            expect(function () {
-                registry.addStub({
-                    criteria: dummyCriteria,
-                    respondWith: dummyRespondWith,
-                    times: 1
-                });
-            }).to.throw(/times/i);
-        });
-
-        it('sets the \'times\' of an expectation to 1 if not explicitly specified', function () {
-            var expectation = registry.addExpectation({
-                criteria: dummyCriteria,
-                respondWith: dummyRespondWith
-            });
-
-            expect(registry.getById(expectation.id).times).to.equal(1);
-        });
-
-        it('sets the criteria method of to \'GET\' if not explicitly specified', function () {
-            var expectation = registry.addExpectation({
+        it('sets the method of criteria to \'GET\' if not explicitly specified', function () {
+            var expectation = registry.addStub({
                 criteria: {
                     url: dummyUrl
                 },
@@ -87,7 +69,7 @@ describe('The stub registry', function () {
         });
 
         it('keeps the \'times\' of an expectation as 0 if specified', function () {
-            var expectation = registry.addExpectation({
+            var expectation = registry.addStub({
                 criteria: dummyCriteria,
                 respondWith: dummyRespondWith,
                 times: 0
@@ -547,7 +529,7 @@ describe('The stub registry', function () {
         });
 
         it('will match an expectation any number of times', function () {
-            registry.addExpectation({
+            registry.addStub({
                 criteria: {
                     url: "my/url",
                     method: 'GET'
@@ -569,13 +551,14 @@ describe('The stub registry', function () {
         });
 
         it('returns a list of errors if an expectation has not been matched against', function () {
-            registry.addExpectation({
+            registry.addStub({
                 criteria: {
                     url: "my/url"
                 },
-                respondWith: dummyRespondWith
+                respondWith: dummyRespondWith,
+                times: 1
             });
-            registry.addExpectation({
+            registry.addStub({
                 criteria: {
                     url: "another/url"
                 },
@@ -590,8 +573,23 @@ describe('The stub registry', function () {
             expect(verificationResult[1]).to.match(/Expected: 2; Actual: 0/);
         });
 
-        it('does not returns errors if an expectation has been met', function () {
-            registry.addExpectation({
+        it('does not return errors if an expectation has been met', function () {
+            registry.addStub({
+                criteria: {
+                    url: "my/url",
+                    method: 'GET',
+                    times: 1
+                },
+                respondWith: dummyRespondWith
+            });
+
+            registry.findMatchFor({ url: "my/url", method: 'GET' });
+
+            expect(registry.verifyExpectations()).to.be.empty;
+        });
+
+        it('does not return errors if no stub is an expectation', function () {
+            registry.addStub({
                 criteria: {
                     url: "my/url",
                     method: 'GET'
@@ -605,7 +603,7 @@ describe('The stub registry', function () {
         });
 
         it('returns an error if an expectation has been matched against a different number of times to that expected', function () {
-            registry.addExpectation({
+            registry.addStub({
                 criteria: {
                     url: "my/url",
                     method: 'GET'
@@ -621,7 +619,7 @@ describe('The stub registry', function () {
         });
 
         it('returns an error if an expectation with zero times has been matched against', function () {
-            registry.addExpectation({
+            registry.addStub({
                 criteria: {
                     url: "my/url",
                     method: 'GET'

@@ -31,8 +31,7 @@ module.exports = function (grunt) {
             },
             tdd: {
                 options: {
-                    force: true,
-                    bail: true
+                    force: true
                 }
             },
             test: { }

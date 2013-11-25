@@ -55,7 +55,7 @@ describe('The Vanilli server', function () {
     it('MUST include CORS headers in responses', function (done) {
         var stubUrl = "/my/url";
 
-        vanilliClient.post('/_vanilli/stub')
+        vanilliClient.post('/_vanilli/stubs')
             .req(function (req) {
                 req.send({
                     criteria: {
@@ -84,7 +84,7 @@ describe('The Vanilli server', function () {
     });
 
     it('MUST allow clearing down all stubs', function (done) {
-        vanilliClient.post('/_vanilli/stub')
+        vanilliClient.post('/_vanilli/stubs')
             .req(function (req) {
                 req.send({
                     criteria: {
@@ -127,7 +127,7 @@ describe('The Vanilli server', function () {
             }
         };
 
-        vanilliClient.post('/_vanilli/stub')
+        vanilliClient.post('/_vanilli/stubs')
             .req(function (req) {
                 req.send(dummyStub);
             })
@@ -148,7 +148,7 @@ describe('The Vanilli server', function () {
             }
         };
 
-        vanilliClient.post('/_vanilli/stub')
+        vanilliClient.post('/_vanilli/stubs')
             .req(function (req) {
                 req.send([ dummyStub, dummyStub ]);
             })
@@ -161,7 +161,7 @@ describe('The Vanilli server', function () {
 
     describe('stubs', function () {
         it('MUST have a url', function (done) {
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.set('Content-Type', 'application/json');
                     req.send({
@@ -181,7 +181,7 @@ describe('The Vanilli server', function () {
         });
 
         it('MUST have a contentType if a response body is specified', function (done) {
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -204,7 +204,7 @@ describe('The Vanilli server', function () {
         });
 
         it('CAN have no response content type if there is no response body', function (done) {
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -225,7 +225,7 @@ describe('The Vanilli server', function () {
             var expectedStatus = 234,
                 url = "/my/url";
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -249,7 +249,7 @@ describe('The Vanilli server', function () {
         it('MUST match against request with the same method', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -276,7 +276,7 @@ describe('The Vanilli server', function () {
             var expectedHeaderValue = "myvalue",
                 expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -308,7 +308,7 @@ describe('The Vanilli server', function () {
                 myfield: "myvalue"
             };
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -341,7 +341,7 @@ describe('The Vanilli server', function () {
                 myfield: "myvalue"
             };
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -367,7 +367,7 @@ describe('The Vanilli server', function () {
         it("MUST match any number times", function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -398,7 +398,7 @@ describe('The Vanilli server', function () {
         it("MUST match any number times", function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -428,7 +428,7 @@ describe('The Vanilli server', function () {
         it("MUST be considered verified if they have been matched the expected number of times", function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -446,7 +446,7 @@ describe('The Vanilli server', function () {
                         .res(function (res) {
                             expect(res.status).to.be.equal(expectedStatus);
 
-                            vanilliClient.get('/_vanilli/expect/verification')
+                            vanilliClient.get('/_vanilli/stubs/verification')
                                 .res(function (res) {
                                     expect(res.status).to.be.equal(200);
                                     expect(res.body.errors).to.be.empty;
@@ -459,7 +459,7 @@ describe('The Vanilli server', function () {
         it("MUST NOT be considered verified if they have been not matched the expected number of times", function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/expect')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -477,7 +477,7 @@ describe('The Vanilli server', function () {
                         .res(function (res) {
                             expect(res.status).to.be.equal(expectedStatus);
 
-                            vanilliClient.get('/_vanilli/expect/verification')
+                            vanilliClient.get('/_vanilli/stubs/verification')
                                 .res(function (res) {
                                     expect(res.status).to.be.equal(200);
                                     expect(res.body.errors).to.have.length(1);
@@ -492,7 +492,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for GET request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -517,7 +517,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for DELETE request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -542,7 +542,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for POST request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -567,7 +567,7 @@ describe('The Vanilli server', function () {
         it('MUST be honoured for PUT request if it matches a stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -604,7 +604,7 @@ describe('The Vanilli server', function () {
         it('MUST have the status specified in the matching stub', function (done) {
             var expectedStatus = 234;
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -630,7 +630,7 @@ describe('The Vanilli server', function () {
                 myfield: "mydata"
             };
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -656,7 +656,7 @@ describe('The Vanilli server', function () {
         it('MUST have the content type specified in the matching stub', function (done) {
             var expectedContentType = "text/plain";
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
@@ -682,7 +682,7 @@ describe('The Vanilli server', function () {
         it('MUST have the headers specified in the matching stub', function (done) {
             var expectedHeaderValue = "myvalue";
 
-            vanilliClient.post('/_vanilli/stub')
+            vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
