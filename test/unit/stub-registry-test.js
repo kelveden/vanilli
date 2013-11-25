@@ -234,13 +234,13 @@ describe('The stub registry', function () {
                 respondWith: dummyRespondWith
             });
 
-            expect(registry.findMatchFor({ url: "my/url", method: 'GET' })).to.exist;
+            expect(registry.findMatchFor({ url: "/my/url", method: 'GET' })).to.exist;
         });
 
         it('will match on stub specified with url regex', function () {
             registry.addStub({
                 criteria: {
-                    url: /^my\/.+$/
+                    url: /^\/my\/.+$/
                 },
                 respondWith: dummyRespondWith
             });
