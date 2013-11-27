@@ -2,7 +2,7 @@
   "name": "vanilli",
   "version": "0.0.1",
   "description": "",
-  "main": "vanilli.js",
+  "main": "./lib/vanilli.js",
   "scripts": {
     "test": "node_modules/.bin/grunt ci"
   },

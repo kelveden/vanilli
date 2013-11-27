@@ -34,7 +34,7 @@ describe('The Vanilli server', function () {
     });
 
     beforeEach(function () {
-        vanilliServer = vanilli.startVanilli({ port: vanilliPort, logLevel: vanilliLogLevel });
+        vanilliServer = vanilli.start({ port: vanilliPort, logLevel: vanilliLogLevel });
         vanilliClient = chai.request(vanilliServer.url);
     });
 

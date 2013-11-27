@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../lib/vanilli.js').startVanilli({ port: 8081, logLevel: "debug" });
+require('../lib/vanilli.js').start({ port: 8081, logLevel: "debug" });
