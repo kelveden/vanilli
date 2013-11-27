@@ -44,6 +44,13 @@ module.exports = function (grunt) {
                     nospawn: true
                 }
             }
+        },
+        bump: {
+            options: {
+                files: [ 'package.json' ],
+                commitFiles: [ 'package.json' ],
+                pushTo: "origin"
+            }
         }
     });
 
