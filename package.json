@@ -1,7 +1,7 @@
 {
   "name": "vanilli",
   "version": "0.0.1",
-  "description": "",
+  "description": "Setup and serve stubs, fakes and expectations [WIP]",
   "main": "./lib/vanilli.js",
   "scripts": {
     "test": "node_modules/.bin/grunt ci"
@@ -11,7 +11,7 @@
     "url": "https://github.com/kelveden/vanilli"
   },
   "keywords": [],
-  "author": "Alistair Dutton <kelveden@gmail.com>",
+  "author": "Alistair Dutton",
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/vanilli/issues"
