@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
 [![Dependencies Status](https://david-dm.org/kelveden/vanilli.png?branch=master)](https://david-dm.org/kelveden/vanilli)
 
-A RESTful server running on Nodejs for storing and matching stubs/expectations from a test run.
+> IMPORTANT: In it's *very* early stages. Expect the goalposts to move. A lot.
 
-In it's *very* early stages. Expect the goalposts to move. A lot.
+A RESTful server running on Nodejs for storing and matching stubs/expectations from a test run.
 
 ## Usage
 Whilst vanilli exposes a RESTful API (which is documented below), it'll probably make more sense to talk to vanilli from its
