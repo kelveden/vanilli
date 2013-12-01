@@ -14,7 +14,7 @@ with https://github.com/kelveden/grunt-vanilli.
 
 ## REST API
 ### GET _vanilli/ping
-Content-Type: application/json
+Content-Type: _application/json_
 
 Simple ping/pong for the server.
 
