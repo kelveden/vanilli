@@ -16,7 +16,7 @@ See the milli tests and its Gruntfile.js for an example of how milli, vanilli an
 
 ## REST API
 ### GET _vanilli/ping
-Content-Type: _application/json
+Content-Type: _application/json_
 
 Simple ping/pong for the server.
 
