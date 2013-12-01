@@ -392,6 +392,44 @@ describe('The Vanilli server', function () {
                         });
                 });
         });
+
+        it('MUST be matched against multiple identical requests in the order the stubs were added', function (done) {
+            var dummyStub1 = {
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: 1
+                },
+                times: 1
+            }, dummyStub2 = {
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: 2
+                }
+            };
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send([ dummyStub1, dummyStub2 ]);
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(1);
+
+                            vanilliClient.get(dummyUrl)
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(2);
+                                    done();
+                                });
+                        });
+                });
+        });
     });
 
     describe('expectations', function () {
@@ -407,7 +445,8 @@ describe('The Vanilli server', function () {
                         respondWith: {
                             status: expectedStatus
                         },
-                        times: 1
+                        times: 1,
+                        expect: true
                     });
                 })
                 .res(function (res) {
@@ -437,7 +476,8 @@ describe('The Vanilli server', function () {
                         respondWith: {
                             status: expectedStatus
                         },
-                        times: 1
+                        times: 1,
+                        expect: true
                     });
                 })
                 .res(function (res) {
@@ -468,7 +508,8 @@ describe('The Vanilli server', function () {
                         respondWith: {
                             status: expectedStatus
                         },
-                        times: 2
+                        times: 2,
+                        expect: true
                     });
                 })
                 .res(function (res) {

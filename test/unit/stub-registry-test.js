@@ -57,7 +57,8 @@ describe('The stub registry', function () {
             var expectation = registry.addStub({
                 criteria: dummyCriteria,
                 respondWith: dummyRespondWith,
-                times: 1
+                times: 1,
+                expect: true
             });
 
             expect(registry.getById(expectation.id)).to.exist;
@@ -531,27 +532,6 @@ describe('The stub registry', function () {
             })).to.not.exist;
         });
 
-        it('throws an error if more than one matching stub is found', function () {
-            registry.addStub({
-                criteria: {
-                    url: dummyUrl,
-                    method: 'GET'
-                },
-                respondWith: dummyRespondWith
-            });
-            registry.addStub({
-                criteria: {
-                    url: dummyUrl,
-                    method: 'GET'
-                },
-                respondWith: dummyRespondWith
-            });
-
-            expect(function () {
-                registry.findMatchFor({ path: path("my/url"), method: 'GET' });
-            }).to.throw(/more than one/i);
-        });
-
         it('will match a stub any number of times', function () {
             registry.addStub({
                 criteria: {
@@ -572,7 +552,8 @@ describe('The stub registry', function () {
                     method: 'GET'
                 },
                 respondWith: dummyRespondWith,
-                times: 1
+                times: 1,
+                expect: true
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
@@ -686,14 +667,16 @@ describe('The stub registry', function () {
                     url: "my/url"
                 },
                 respondWith: dummyRespondWith,
-                times: 1
+                times: 1,
+                expect: true
             });
             registry.addStub({
                 criteria: {
                     url: "another/url"
                 },
                 respondWith: dummyRespondWith,
-                times: 2
+                times: 2,
+                expect: true
             });
 
             var verificationResult = registry.verifyExpectations();
@@ -739,7 +722,8 @@ describe('The stub registry', function () {
                     method: 'GET'
                 },
                 respondWith: dummyRespondWith,
-                times: 3
+                times: 3,
+                expect: true
             });
 
             registry.findMatchFor({ path: path("my/url"), method: 'GET' });
@@ -755,7 +739,8 @@ describe('The stub registry', function () {
                     method: 'GET'
                 },
                 respondWith: dummyRespondWith,
-                times: 0
+                times: 0,
+                expect: true
             });
 
             registry.findMatchFor({ path: path("my/url"), method: 'GET' });
