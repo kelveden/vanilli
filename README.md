@@ -13,7 +13,25 @@ javascript client library cousin https://github.com/kelveden/milli. You can also
 with https://github.com/kelveden/grunt-vanilli.
 
 ## REST API
+### GET _vanilli/ping
+Content-Type: application/json
+
+Simple ping/pong for the server.
+
+### POST _vanilli/stubs
+Content-Type: _application/json_
+
+Accepts one or more stubs/expectations for storage.
 TODO
+
+### DEL _vanilli/stubs
+Clears down all stubs.
+
+### GET _vanilli/stubs/verification
+Content-Type: _application/json_
+
+Checks that all stubs marked as expectations have been used in responses the expected number of times. All errors are included as a
+JSON array in the response body. An empty array indicates no errors.
 
 ## Installation
 
