@@ -12,9 +12,11 @@ Whilst vanilli exposes a RESTful API (which is documented below), it'll probably
 javascript client library cousin https://github.com/kelveden/milli. You can also hook starting/shutting vanilli down into your grunt build
 with https://github.com/kelveden/grunt-vanilli.
 
+See the milli tests and its Gruntfile.js for an example of how milli, vanilli and grunt-vanilli fit together.
+
 ## REST API
 ### GET _vanilli/ping
-Content-Type: application/json
+Content-Type: _application/json
 
 Simple ping/pong for the server.
 
