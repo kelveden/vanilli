@@ -747,4 +747,49 @@ describe('The Vanilli server', function () {
                 });
         });
     });
+
+    describe('captures', function () {
+        it('MUST allow capturing of a POST request entity', function (done) {
+            var body = { some: "data" },
+                captureId = "mycapture";
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            method: 'POST',
+                            url: "my/url"
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        },
+                        capture: captureId
+                    });
+                })
+                .res(function () {
+                    vanilliClient.post('/my/url')
+                        .req(function (req) {
+                            req.send(body);
+                        })
+                        .res(function () {
+                            vanilliClient.get('/_vanilli/captures/' + captureId)
+                                .res(function (res) {
+                                    expect(res.status).to.be.equal(200);
+                                    expect(res.body.body.some).to.equal("data");
+                                    expect(res.body.contentType).to.equal("application/json");
+
+                                    done();
+                                });
+                        });
+                });
+        });
+
+        it('MUST return a 404 if a capture is not found', function (done) {
+            vanilliClient.get('/_vanilli/captures/rubbish')
+                .res(function (res) {
+                    expect(res.status).to.be.equal(404);
+                    done();
+                });
+        });
+    });
 });

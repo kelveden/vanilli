@@ -27,7 +27,8 @@ module.exports = function (grunt) {
                 reporter: 'spec',
                 ui: 'bdd',
                 files: ['test/**/*.js'],
-                require: ['better-stack-traces']
+                require: ['better-stack-traces'],
+                bail: false
             },
             tdd: {
                 options: {

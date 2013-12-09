@@ -25,7 +25,7 @@ describe('The stub registry', function () {
             respondWith: dummyRespondWith
         };
 
-    function path (url) {
+    function path(url) {
         return function () {
             return url;
         };
@@ -770,6 +770,44 @@ describe('The stub registry', function () {
 
             // Then
             expect(registry.getById(stub.id)).to.not.exist;
+        });
+    });
+
+    describe('capturer', function () {
+        var registry;
+
+        beforeEach(function () {
+            registry = require('../../lib/stub-registry.js').create(log);
+        });
+
+        it('can capture a request', function () {
+            // Given
+            var body = {
+                    some: "data"
+                },
+                contentType = "my/contenttype",
+                stub = registry.addStub({
+                    criteria: {
+                        method: 'POST',
+                        url: "/my/url"
+                    },
+                    respondWith: dummyRespondWith,
+                    capture: "mycapture"
+                });
+
+            // When
+            expect(registry.findMatchFor({
+                path: path("my/url"),
+                method: 'POST',
+                body: body,
+                contentType: function () {
+                    return contentType;
+                }
+            })).to.exist;
+
+            // Then
+            expect(registry.getCapture('mycapture').body).to.deep.equal(body);
+            expect(registry.getCapture('mycapture').contentType()).to.equal(contentType);
         });
     });
 });
