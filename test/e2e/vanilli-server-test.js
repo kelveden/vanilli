@@ -3,7 +3,8 @@ var vanilliLogLevel = "error",
     vanilli = require('../../lib/vanilli.js'),
     chai = require('chai'),
     expect = require('chai').expect,
-    portfinder = require('portfinder');
+    portfinder = require('portfinder'),
+    allowedHeaderForCors = "My-Custom-Header";
 
 require("better-stack-traces").install({
     before: 0,
@@ -34,7 +35,7 @@ describe('The Vanilli server', function () {
     });
 
     beforeEach(function () {
-        vanilliServer = vanilli.start({ port: vanilliPort, logLevel: vanilliLogLevel });
+        vanilliServer = vanilli.start({ port: vanilliPort, logLevel: vanilliLogLevel, allowedHeadersForCors: [ allowedHeaderForCors ] });
         vanilliClient = chai.request(vanilliServer.url);
     });
 
@@ -80,6 +81,28 @@ describe('The Vanilli server', function () {
                         expect(res.header['access-control-allow-headers']).to.exist;
                         done();
                     });
+            });
+    });
+
+    it('MUST include headers specified in configuration in CORS Access-Control-Allow-Headers header', function (done) {
+        var stubUrl = "/my/url";
+
+        vanilliClient.post('/_vanilli/stubs')
+            .req(function (req) {
+                req.send({
+                    criteria: {
+                        url: stubUrl
+                    },
+                    respondWith: {
+                        status: dummyStatus
+                    }
+                });
+            })
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+                expect(res.header['access-control-allow-headers']).to.contain(allowedHeaderForCors);
+
+                done();
             });
     });
 
