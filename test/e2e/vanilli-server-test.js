@@ -104,7 +104,6 @@ describe('The Vanilli server', function () {
 
                         vanilliClient.del('/_vanilli/stubs')
                             .res(function (res) {
-                                console.log(res.body);
                                 expect(res.status).to.be.equal(200);
 
                                 vanilliClient.get(dummyUrl)
@@ -329,7 +328,6 @@ describe('The Vanilli server', function () {
                             req.send(expectedbody);
                         })
                         .res(function (res) {
-                            console.log(res.body);
                             expect(res.status).to.equal(dummyStatus);
                             done();
                         });
