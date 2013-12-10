@@ -807,7 +807,7 @@ describe('The stub registry', function () {
 
             // Then
             expect(registry.getCapture('mycapture').body).to.deep.equal(body);
-            expect(registry.getCapture('mycapture').contentType()).to.equal(contentType);
+            expect(registry.getCapture('mycapture').contentType).to.equal(contentType);
         });
     });
 });
