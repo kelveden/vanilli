@@ -451,6 +451,31 @@ describe('The Vanilli server', function () {
                         });
                 });
         });
+
+        it("MUST match against request with the same query params", function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl,
+                            query: {
+                                param1: "value1"
+                            }
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl + "?param1=value1")
+                        .res(function (res) {
+                            expect(res.status).to.equal(dummyStatus);
+                            done();
+                        });
+                });
+        });
     });
 
     describe('expectations', function () {
