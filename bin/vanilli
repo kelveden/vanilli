@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var path = require('path');
+var fs = require('fs');
+
+var dir = path.resolve(process.cwd(), 'node_modules', 'vanilli', 'lib');
+
+if (!fs.existsSync(dir)) {
+  dir = path.join('..', 'lib');
+}
+
+require(path.join(dir, 'vanilli')).start({ port: 14000, logLevel: "debug" });

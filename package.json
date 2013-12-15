@@ -3,6 +3,7 @@
   "version": "0.0.13",
   "description": "Setup and serve stubs, fakes and expectations [WIP]",
   "main": "./lib/vanilli.js",
+  "bin": "./bin/vanilli",
   "scripts": {
     "test": "node_modules/.bin/grunt ci"
   },
