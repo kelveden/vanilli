@@ -1,5 +1,5 @@
 /* jshint expr:true */
-var vanilliLogLevel = "error",
+var vanilliLogLevel = "fatal",
     expect = require('chai').expect,
     _ = require('lodash'),
     log = require('bunyan').createLogger({
