@@ -14,6 +14,8 @@ with https://github.com/kelveden/grunt-vanilli.
 
 See the milli tests and its Gruntfile.js for an example of how milli, vanilli and grunt-vanilli fit together.
 
+For a simple start script for vanilli see `bin/vanilli`.
+
 ## How It Works
 Vanilli is designed to act as a "fake" version of the REST service(s) that your SUT depends on. It sits running on a port (say 14000).
 Your SUT will be running on another port (say 8080). Most importantly, you will have configured your SUT so that HTTP calls to
@@ -33,6 +35,20 @@ Extra headers for the `Access-Control-Allow-Headers` header can be added via `co
 of HTTP headers.
 
 > *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
+
+## Configuration
+Vanilli is configured as it started via the `start(config)` function.
+
+    {
+        port: <port to run Vanilli on>,
+        allowedHeadersForCors: <extra headers to add to the Access-Control-Allow-Headers CORS header in vanilli responses>,
+        logLevel: <log level for vanilli; defaults to 'error'. See the [bunyan](https://github.com/trentm/node-bunyan) project for more info on log levels>
+    }
+
+## Diagnostics
+Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause vanilli
+to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against incoming
+requests.
 
 ## REST API
 ### GET _vanilli/ping
