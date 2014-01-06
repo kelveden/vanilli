@@ -41,14 +41,15 @@ Vanilli is configured as it started via the `start(config)` function.
 
     {
         port: <port to run Vanilli on>,
-        allowedHeadersForCors: <extra headers to add to the Access-Control-Allow-Headers CORS header in vanilli responses>,
-        logLevel: <log level for vanilli; defaults to 'error'. See the [bunyan](https://github.com/trentm/node-bunyan) project for more info on log levels>
+        allowedHeadersForCors: <array containing extra headers to add to the Access-Control-Allow-Headers CORS header in vanilli responses>,
+        logLevel: <log level for vanilli; defaults to 'error'>
     }
 
 ## Diagnostics
 Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause vanilli
-to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against incoming
-requests.
+to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against incoming requests.
+
+See the [bunyan](https://github.com/trentm/node-bunyan) project itself for more info on logging and log levels.
 
 ## REST API
 ### GET _vanilli/ping
