@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
 [![Dependencies Status](https://david-dm.org/kelveden/vanilli.png?branch=master)](https://david-dm.org/kelveden/vanilli)
 
-> IMPORTANT: In it's *very* early stages. Expect the goalposts to move. A lot.
+> *IMPORTANT*: Before considering using vanilli or milli there is a reliance on CORS that may be a gotcha for you. See the section on CORS below for more info.
 
 A RESTful server running on Nodejs for storing and matching stubs/expectations from a test run.
 
@@ -13,6 +13,26 @@ javascript client library cousin https://github.com/kelveden/milli. You can also
 with https://github.com/kelveden/grunt-vanilli.
 
 See the milli tests and its Gruntfile.js for an example of how milli, vanilli and grunt-vanilli fit together.
+
+## How It Works
+Vanilli is designed to act as a "fake" version of the REST service(s) that your SUT depends on. It sits running on a port (say 14000).
+Your SUT will be running on another port (say 8080). Most importantly, you will have configured your SUT so that HTTP calls to
+REST services go out to port 14000 NOT 8080.
+
+Now, all you need to do is set up stubs in vanilli (i.e. with milli) so that appropriate responses exist when making calls to the
+fake REST services.
+
+### CORS
+As you might have worked out, this architecture relies heavily on CORS. Vanilli will send out CORS headers in all responses:
+
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Headers: <See lib/cors.js for a list of the supported headers>
+    Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
+
+Extra headers for the `Access-Control-Allow-Headers` header can be added via `config.allowedHeadersForCors` which is a JSON array
+of HTTP headers.
+
+> *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
 
 ## REST API
 ### GET _vanilli/ping
