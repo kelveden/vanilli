@@ -122,3 +122,7 @@ you pipe the sysout through bunyan to get your log output nicely formatted and c
 ``` bash
 $ bin/vanilli.sh | bunyan
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kelveden/vanilli/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
