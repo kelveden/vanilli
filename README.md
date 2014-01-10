@@ -65,30 +65,30 @@ The body should be a single stub definition OR a JSON array containing one or mo
 given below. (Note that all fields are optional unless otherwise specified):
 
     {
-        criteria: {
-            url: _url to match against - can be a string or regex_, -- MANDATORY
-            body: _the request entity body to match against; can be a literal or a regex,
-            contentType: _the request entity content type to match against; i.e. Content-Type header_,
-            query: {
-                _param1_: _expected value; literal or regex_,
+        "criteria": {
+            "url": _url to match against - can be a string or regex_, -- MANDATORY
+            "body": _the request entity body to match against; can be a literal or a regex,
+            "contentType": _the request entity content type to match against; i.e. Content-Type header_,
+            "query": {
+                "_param1_": _expected value; literal or regex_,
                 ...
             },
-            headers: {
-                _header1_: _expected value; literal or regex_,
+            "headers": {
+                "_header1_": _expected value; literal or regex_,
                 ...
             }
         },
-        respondWith: {
-            status: _the HTTP status code to respond with_, -- MANDATORY
-            body: _the response entity body_,
-            contentType: _the HTTP Content-Type of the response entity_,
-            headers: {
-                _header1_: _value1_,
+        "respondWith": {
+            "status": _the HTTP status code to respond with_, -- MANDATORY
+            "body": _the response entity body_,
+            "contentType": _the HTTP Content-Type of the response entity_,
+            "headers": {
+                "_header1_": _value1_,
                 ...
             }
         },
-        expect: true,
-        times: _integer value for use with an expectation indicating how many times to expect a match_
+        "expect": true,
+        "times": _integer value for use with an expectation indicating how many times to expect a match_
     }
 
 ### DEL _vanilli/stubs
