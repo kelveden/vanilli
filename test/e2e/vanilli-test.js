@@ -587,7 +587,9 @@ describe('The Vanilli server', function () {
                             method: 'GET'
                         },
                         respondWith: {
-                            status: expectedStatus
+                            status: expectedStatus,
+                            body: { some: "data" },
+                            contentType: "application/json"
                         }
                     });
                 })
@@ -596,6 +598,7 @@ describe('The Vanilli server', function () {
                     vanilliClient.get(dummyUrl)
                         .res(function (res) {
                             expect(res.status).to.be.equal(expectedStatus);
+                            expect(res.body.some).to.be.equal("data");
                             done();
                         });
                 });
@@ -637,7 +640,9 @@ describe('The Vanilli server', function () {
                             method: 'POST'
                         },
                         respondWith: {
-                            status: expectedStatus
+                            status: expectedStatus,
+                            body: { some: "data" },
+                            contentType: "application/json"
                         }
                     });
                 })
@@ -646,6 +651,7 @@ describe('The Vanilli server', function () {
                     vanilliClient.post(dummyUrl)
                         .res(function (res) {
                             expect(res.status).to.be.equal(expectedStatus);
+                            expect(res.body.some).to.be.equal("data");
                             done();
                         });
                 });
@@ -662,7 +668,9 @@ describe('The Vanilli server', function () {
                             method: 'PUT'
                         },
                         respondWith: {
-                            status: expectedStatus
+                            status: expectedStatus,
+                            body: { some: "data" },
+                            contentType: "application/json"
                         }
                     });
                 })
@@ -671,6 +679,7 @@ describe('The Vanilli server', function () {
                     vanilliClient.put(dummyUrl)
                         .res(function (res) {
                             expect(res.status).to.be.equal(expectedStatus);
+                            expect(res.body.some).to.be.equal("data");
                             done();
                         });
                 });
