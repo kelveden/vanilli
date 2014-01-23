@@ -9,7 +9,7 @@ var vanilliLogLevel = "fatal",
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl = /.+/,
+        dummyUrl = ".+",
         dummyPath = "/some/url",
         dummyCriteria = {
             url: dummyUrl,
@@ -259,7 +259,7 @@ describe('The stub registry', function () {
         it('will match on stub specified with url regex', function () {
             registry.addStub({
                 criteria: {
-                    url: /^\/my\/.+$/
+                    url: "/my/.+$"
                 },
                 respondWith: dummyRespondWith
             });
@@ -297,7 +297,7 @@ describe('The stub registry', function () {
                 respondWith: dummyRespondWith
             });
 
-            expect(registry.findMatchFor({ path: path("another/url"), method: 'GET' })).to.not.exist;
+            expect(registry.findMatchFor({ path: path("some/url/or/other"), method: 'GET' })).to.not.exist;
         });
 
         it('will match on stub specified with HTTP method', function () {
