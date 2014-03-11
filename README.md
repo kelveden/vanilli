@@ -17,24 +17,23 @@ See the milli tests and its Gruntfile.js for an example of how milli, vanilli an
 For a simple start script for vanilli see `bin/vanilli`.
 
 ## How It Works
-Vanilli is designed to act as a "fake" version of the REST service(s) that your SUT depends on. It sits running on a port (say 14000).
-Your SUT will be running on another port (say 8080). Most importantly, you will have configured your SUT so that HTTP calls to
-REST services go out to port 14000 NOT 8080.
+Vanilli is designed to act as a "fake" version of the REST service(s) that your SUT (System Under Test) depends on. It sits running on a port (say 14000).
+Your SUT will be running on another port (say 8080). Most importantly, you will have configured your SUT so that HTTP calls to REST services go out to port 14000 NOT 8080.
 
-Now, all you need to do is set up stubs in vanilli (i.e. with milli) so that appropriate responses exist when making calls to the
-fake REST services.
+Now, all you need to do is set up stubs in vanilli (i.e. with milli) so that appropriate responses exist when making calls to the fake REST services.
 
 ### CORS
-As you might have worked out, this architecture relies heavily on CORS. Vanilli will send out CORS headers in all responses:
+Vanilli runs on a different port to your SUT. If your SUT's calls to the REST services it depends on are all server-side then vanilli should just work. However, if you have client-side calls then you'll need to take advantage of the vanilli support for [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
+
+Vanilli sends out CORS headers in all responses:
 
     Access-Control-Allow-Origin: *
     Access-Control-Allow-Headers: <See lib/cors.js for a list of the supported headers>
     Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
 
-Extra headers for the `Access-Control-Allow-Headers` header can be added via `config.allowedHeadersForCors` which is a JSON array
-of HTTP headers.
+Extra headers for the `Access-Control-Allow-Headers` header can be added via `config.allowedHeadersForCors` which is a JSON array of HTTP headers.
 
-> *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
+*IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
 
 ## Configuration
 Vanilli is configured as it started via the `start(config)` function.
