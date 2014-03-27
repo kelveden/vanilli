@@ -3,12 +3,11 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         complexity: {
             generic: {
-                src: ['app/**/*.js'],
+                src: ['lib/**/*.js'],
                 options: {
-                    errorsOnly: false,
-                    cyclometric: 6,       // default is 3
-                    halstead: 16,         // default is 8
-                    maintainability: 100  // default is 100
+                    cyclometric: 5,
+                    halstead: 16,
+                    maintainability: 100
                 }
             }
         },
@@ -54,8 +53,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha-cli');
     grunt.loadNpmTasks('grunt-release');
 
-    grunt.registerTask('ci', ['complexity', 'jshint', 'mochacli:test']);
-    grunt.registerTask('tdd', ['complexity', 'jshint', 'mochacli:tdd', 'watch' ]);
+    grunt.registerTask('ci', ['jshint', 'mochacli:test']);
+    grunt.registerTask('tdd', ['jshint', 'mochacli:tdd', 'watch' ]);
     grunt.registerTask('publish', ['ci', 'release' ]);
 
     grunt.registerTask('default', ['ci']);

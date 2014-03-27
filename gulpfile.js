@@ -6,10 +6,9 @@ var gulp = require('gulp'),
 gulp.task('complexity', function () {
     gulp.src('lib/**/*.js')
         .pipe(complexity({
-            errorsOnly: false,
-            cyclomatic: 1,
-            halstead: 16,
-            maintainability: 100
+            cyclomatic: [5],
+            halstead: [16],
+            maintainability: [100]
         }));
 });
 
@@ -32,5 +31,5 @@ gulp.task('watch', function () {
     gulp.watch(['**/*.js', '!node_modules/**/*.js'], ['default']);
 });
 
-gulp.task('default', ['complexity', 'lint', 'test']);
+gulp.task('default', ['lint', 'test']);
 gulp.task('tdd', ['default', 'watch']);
