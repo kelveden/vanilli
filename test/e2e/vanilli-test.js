@@ -14,7 +14,7 @@ require("better-stack-traces").install({
 
 portfinder.basePort = 14000;
 
-chai.Assertion.includeStack = true;
+chai.config.includeStack = true;
 chai.use(require('chai-http'));
 
 describe('The Vanilli server', function () {
