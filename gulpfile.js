@@ -29,7 +29,7 @@ gulp.task('test', function () {
         }));
 });
 
-gulp.task('release', ['bump'], function () {
+gulp.task('release', function () {
     var version = require('./package.json').version;
 
     return gulp.src('./package.json')
@@ -37,11 +37,10 @@ gulp.task('release', ['bump'], function () {
         .pipe(git.tag(version, version));
 });
 
-gulp.task('bump', function (callback) {
+gulp.task('bump', function () {
     gulp.src('./package.json')
         .pipe(bump({ type: 'build'}))
-        .pipe(gulp.dest('./'))
-        .on('close', callback);
+        .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function () {
