@@ -37,10 +37,11 @@ gulp.task('release', ['bump'], function () {
         .pipe(git.tag(version, version));
 });
 
-gulp.task('bump', function () {
+gulp.task('bump', function (callback) {
     gulp.src('./package.json')
         .pipe(bump({ type: 'build'}))
-        .pipe(gulp.dest('./'));
+        .pipe(gulp.dest('./'))
+        .on('close', callback);
 });
 
 gulp.task('watch', function () {
