@@ -1,7 +1,9 @@
 var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     mocha = require('gulp-mocha'),
-    complexity = require('gulp-complexity');
+    complexity = require('gulp-complexity'),
+    git = require('gulp-git'),
+    bump = require('gulp-bump');
 
 gulp.task('complexity', function () {
     gulp.src('lib/**/*.js')
@@ -22,9 +24,23 @@ gulp.task('lint', function () {
 gulp.task('test', function () {
     gulp.src('test/**/*.js', { read: false })
         .pipe(mocha({
-            reporter: 'spec'
-        }))
-        .on('error', function () {});
+            reporter: 'spec',
+            bail: true
+        }));
+});
+
+gulp.task('release', ['bump'], function () {
+    var version = require('./package.json').version;
+
+    return gulp.src('./package.json')
+        .pipe(git.commit(version))
+        .pipe(git.tag(version, version));
+});
+
+gulp.task('bump', function () {
+    gulp.src('./package.json')
+        .pipe(bump({ type: 'build'}))
+        .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function () {
