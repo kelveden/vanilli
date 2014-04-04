@@ -45,8 +45,8 @@ Vanilli is configured as it started via the `start(config)` function.
     }
 
 ## JSONP
-Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter is found on the corresponding request.
-This is not explicitly handled in vanilli but is handled by its underlying [restify](http://mcavage.me/node-restify/) server instead.
+Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter is found on the request that
+the stub response is being produced for. This is not explicitly handled in vanilli but by its underlying [restify](http://mcavage.me/node-restify/) server instead.
 
 ## Diagnostics
 Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause vanilli
