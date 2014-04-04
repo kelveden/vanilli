@@ -123,6 +123,8 @@ describe('The Vanilli server', function () {
 
                 vanilliClient.get(dummyUrl)
                     .res(function (res) {
+                        console.log(res.body);
+
                         expect(res.status).to.be.equal(dummyStatus);
 
                         vanilliClient.del('/_vanilli/stubs')
@@ -797,6 +799,32 @@ describe('The Vanilli server', function () {
                     vanilliClient.get(dummyUrl)
                         .res(function (res) {
                             expect(res).to.have.header('my-header', expectedHeaderValue);
+                            done();
+                        });
+                });
+        });
+
+        it('MUST include subsitutions of placeholders in the body based on the values pulled from request querystring parameters', function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                            body: {
+                                myfield: "@vanilli:queryparam1@"
+                            },
+                            contentType: "application/json"
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl + "?queryparam1=value1")
+                        .res(function (res) {
+                            expect(res.body.myfield).to.equal("value1");
                             done();
                         });
                 });
