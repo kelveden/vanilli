@@ -574,7 +574,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: function () { return "param1=value1&param2=value2"; }
+                    query: { param1: "value1", param2: "value2" }
                 }
             )).to.exist;
         });
@@ -593,7 +593,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: function () { return "param1=value1&param2=value2"; }
+                    query: { param1: "value1", param2: "value2" }
                 }
             )).to.exist;
         });
@@ -612,7 +612,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: function () { return "param1=anothervalue"; }
+                    query: { param1: "anothervalue" }
                 }
             )).to.not.exist;
         });
@@ -631,7 +631,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: function () { return "param2=value1"; }
+                    query: { param2: "value1" }
                 }
             )).to.not.exist;
         });
