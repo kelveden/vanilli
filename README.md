@@ -44,6 +44,10 @@ Vanilli is configured as it started via the `start(config)` function.
         logLevel: <log level for vanilli; defaults to 'error'>
     }
 
+## JSONP
+Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter is found on the corresponding request.
+This is not explicitly handled in vanilli but is handled by its underlying [restify](http://mcavage.me/node-restify/) server instead.
+
 ## Diagnostics
 Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause vanilli
 to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against incoming requests.
