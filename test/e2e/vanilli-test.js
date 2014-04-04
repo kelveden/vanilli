@@ -123,8 +123,6 @@ describe('The Vanilli server', function () {
 
                 vanilliClient.get(dummyUrl)
                     .res(function (res) {
-                        console.log(res.body);
-
                         expect(res.status).to.be.equal(dummyStatus);
 
                         vanilliClient.del('/_vanilli/stubs')
@@ -829,11 +827,70 @@ describe('The Vanilli server', function () {
                         });
                 });
         });
+
+        it('MUST include body wrapped in JSONP callback if specified', function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                            body: "something",
+                            contentType: "text/plain"
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl + "?callback=mycallback")
+                        .req(function (req) {
+                            req.buffer();
+                        })
+                        .res(function (res) {
+                            expect(res.text).to.equal('mycallback("something");');
+                            expect(res.header['content-type']).to.equal("application/javascript");
+                            done();
+                        });
+                });
+        });
+
+        it('MUST include json body wrapped as object in JSONP callback if specified', function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                            body: {
+                                myfield1: 123,
+                                myfield2: "abc"
+                            },
+                            contentType: "application/json"
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl + "?callback=mycallback")
+                        .req(function (req) {
+                            req.buffer();
+                        })
+                        .res(function (res) {
+                            expect(res.text).to.equal('mycallback({"myfield1":123,"myfield2":"abc"});');
+                            expect(res.header['content-type']).to.equal("application/javascript");
+                            done();
+                        });
+                });
+        });
     });
 
     describe('captures', function () {
         it('MUST allow capturing of a POST request entity', function (done) {
-            var body = { some: "data" },
+            var body = { myfield: "mydata" },
                 captureId = "mycapture";
 
             vanilliClient.post('/_vanilli/stubs')
@@ -858,7 +915,7 @@ describe('The Vanilli server', function () {
                             vanilliClient.get('/_vanilli/captures/' + captureId)
                                 .res(function (res) {
                                     expect(res.status).to.be.equal(200);
-                                    expect(res.body.body.some).to.equal("data");
+                                    expect(res.body.body.myfield).to.equal("mydata");
                                     expect(res.body.contentType).to.equal("application/json");
 
                                     done();
