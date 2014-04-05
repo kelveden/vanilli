@@ -29,7 +29,7 @@ gulp.task('test', function () {
         }));
 });
 
-gulp.task('release', [ 'bump' ], function () {
+gulp.task('release', function () {
     var version = require('./package.json').version;
 
     return gulp.src('./package.json')
