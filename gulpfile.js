@@ -29,7 +29,7 @@ gulp.task('test', function () {
         }));
 });
 
-gulp.task('release', function () {
+gulp.task('release', [ 'bump' ], function () {
     var version = require('./package.json').version;
 
     return gulp.src('./package.json')
@@ -50,4 +50,3 @@ gulp.task('watch', function () {
 
 gulp.task('default', ['lint', 'test']);
 gulp.task('tdd', ['default', 'watch']);
-gulp.task('publish', ['bump', 'release']);
