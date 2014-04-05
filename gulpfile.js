@@ -34,7 +34,8 @@ gulp.task('release', function () {
 
     return gulp.src('./package.json')
         .pipe(git.commit(version))
-        .pipe(git.tag(version, version));
+        .pipe(git.tag(version, version))
+        .pipe(git.push("origin", "master"));
 });
 
 gulp.task('bump', function () {
@@ -49,3 +50,4 @@ gulp.task('watch', function () {
 
 gulp.task('default', ['lint', 'test']);
 gulp.task('tdd', ['default', 'watch']);
+gulp.task('publish', ['bump', 'release']);
