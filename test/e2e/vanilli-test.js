@@ -123,6 +123,7 @@ describe('The Vanilli server', function () {
 
                 vanilliClient.get(dummyUrl)
                     .res(function (res) {
+                        console.log(res.text);
                         expect(res.status).to.be.equal(dummyStatus);
 
                         vanilliClient.del('/_vanilli/stubs')
@@ -882,6 +883,34 @@ describe('The Vanilli server', function () {
                         .res(function (res) {
                             expect(res.text).to.equal('mycallback({"myfield1":123,"myfield2":"abc"});');
                             expect(res.header['content-type']).to.equal("application/javascript");
+                            done();
+                        });
+                });
+        });
+
+        it('MUST use correct content type for response with content type not supported by a registered restify formatter', function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                            body: "<html><body>some page</body></html>",
+                            contentType: "text/html"
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .req(function (req) {
+                            req.buffer();
+                        })
+                        .res(function (res) {
+                            expect(res.text).to.equal('<html><body>some page</body></html>');
+                            expect(res.header['content-type']).to.equal("text/html");
                             done();
                         });
                 });
