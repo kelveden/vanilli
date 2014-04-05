@@ -34,8 +34,7 @@ gulp.task('release', function () {
 
     return gulp.src('./package.json')
         .pipe(git.commit(version))
-        .pipe(git.tag(version, version))
-        .pipe(git.push("origin", "master"));
+        .pipe(git.tag(version, version));
 });
 
 gulp.task('bump', function () {
