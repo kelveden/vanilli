@@ -3,7 +3,8 @@ var gulp = require('gulp'),
     mocha = require('gulp-mocha'),
     complexity = require('gulp-complexity'),
     git = require('gulp-git'),
-    bump = require('gulp-bump');
+    bump = require('gulp-bump'),
+    argv = require('minimist')(process.argv.slice(3));
 
 gulp.task('complexity', function () {
     gulp.src('lib/**/*.js')
@@ -42,12 +43,16 @@ gulp.task('release', [ 'bump' ], function () {
 
 gulp.task('bump', function () {
     return gulp.src('./package.json')
-        .pipe(bump({ type: 'build'}))
+        .pipe(bump({ type: argv.type || 'build'}))
         .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function () {
     gulp.watch(['**/*.js', '!node_modules/**/*.js'], ['default']);
+});
+
+gulp.task('temp', function () {
+    console.log(argv);
 });
 
 gulp.task('default', ['lint', 'test']);
