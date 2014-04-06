@@ -15,30 +15,33 @@ gulp.task('complexity', function () {
 });
 
 gulp.task('lint', function () {
-    gulp.src(['gulpfile.js', 'lib/**/*.js', 'test/**/*.js'])
+    return gulp.src(['gulpfile.js', 'lib/**/*.js', 'test/**/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
         .pipe(jshint.reporter('fail'));
 });
 
 gulp.task('test', function () {
-    gulp.src('test/**/*.js', { read: false })
+    return gulp.src('test/**/*.js', { read: false })
         .pipe(mocha({
             reporter: 'spec',
             bail: true
         }));
 });
 
-gulp.task('release', function () {
+gulp.task('release', [ 'bump' ], function () {
     var version = require('./package.json').version;
 
-    return gulp.src('./package.json')
-        .pipe(git.commit(version))
-        .pipe(git.tag(version, version));
+    gulp.src('./package.json')
+        .pipe(git.commit(version));
+
+    git.tag(version, version);
+
+    return git.push("origin", "master");
 });
 
 gulp.task('bump', function () {
-    gulp.src('./package.json')
+    return gulp.src('./package.json')
         .pipe(bump({ type: 'build'}))
         .pipe(gulp.dest('./'));
 });
