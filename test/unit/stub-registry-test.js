@@ -475,35 +475,11 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                 path: path("my/url"),
                 method: 'GET',
-                body: {
+                body: JSON.stringify({
                     myfield: "myvalue"
-                },
+                }),
                 contentType: function () {
                     return "application/json";
-                }
-            })).to.exist;
-        });
-
-        it('will match on stub specified with body content matching function', function () {
-            registry.addStub({
-                criteria: {
-                    url: dummyUrl,
-                    body: function (actualbody) {
-                        return actualbody.myfield === "myvalue";
-                    },
-                    contentType: "application/json"
-                },
-                respondWith: dummyRespondWith
-            });
-
-            expect(registry.findMatchFor({
-                path: path("my/url"),
-                method: 'GET',
-                body: {
-                    myfield: "myvalue"
-                },
-                headers: {
-                    "Content-Type": "application/json"
                 }
             })).to.exist;
         });
