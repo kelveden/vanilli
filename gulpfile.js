@@ -22,11 +22,19 @@ gulp.task('lint', function () {
         .pipe(jshint.reporter('fail'));
 });
 
-gulp.task('test', function () {
-    return gulp.src('test/**/*.js', { read: false })
+gulp.task('test-unit', function () {
+    gulp.src('test/unit/*.js', { read: false })
         .pipe(mocha({
             reporter: 'spec',
-            bail: true
+            bail: false
+        }));
+});
+
+gulp.task('test-e2e', function () {
+    gulp.src('test/e2e/*.js', { read: false })
+        .pipe(mocha({
+            reporter: 'spec',
+            bail: false
         }));
 });
 
@@ -47,13 +55,9 @@ gulp.task('bump', function () {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('watch', function () {
-    gulp.watch(['**/*.js', '!node_modules/**/*.js'], ['default']);
+gulp.task('tdd-watch', function () {
+    gulp.watch(['**/*.js', '!node_modules/**/*.js'], ['test-unit']);
 });
 
-gulp.task('temp', function () {
-    console.log(argv);
-});
-
-gulp.task('default', ['lint', 'test']);
-gulp.task('tdd', ['default', 'watch']);
+gulp.task('default', ['lint', 'test-unit', 'test-e2e']);
+gulp.task('tdd', ['test-unit', 'tdd-watch']);

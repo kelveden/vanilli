@@ -123,7 +123,6 @@ describe('The Vanilli server', function () {
 
                 vanilliClient.get(dummyUrl)
                     .res(function (res) {
-                        console.log(res.text);
                         expect(res.status).to.be.equal(dummyStatus);
 
                         vanilliClient.del('/_vanilli/stubs')
@@ -326,17 +325,14 @@ describe('The Vanilli server', function () {
                 });
         });
 
-        it("MUST match against request with the same response body", function (done) {
-            var expectedbody = {
-                myfield: "myvalue"
-            };
-
+        it("MUST match against request with the same request body", function (done) {
             vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
                     req.send({
                         criteria: {
+                            method: "post",
                             url: dummyUrl,
-                            body: expectedbody,
+                            body: { myfield: "some data" },
                             contentType: 'application/json'
                         },
                         respondWith: {
@@ -346,13 +342,73 @@ describe('The Vanilli server', function () {
                 })
                 .res(function (res) {
                     expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
+                    vanilliClient.post(dummyUrl)
                         .req(function (req) {
                             req.set('Content-Type', 'application/json');
-                            req.send(expectedbody);
+                            req.send({ "myfield": "some data" });
                         })
                         .res(function (res) {
                             expect(res.status).to.equal(dummyStatus);
+                            done();
+                        });
+                });
+        });
+
+        it("MUST match against request with the a request body that matches a given regex", function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            method: "post",
+                            url: dummyUrl,
+                            body: {
+                                regex: "some.+data"
+                            },
+                            contentType: 'application/json'
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.post(dummyUrl)
+                        .req(function (req) {
+                            req.set('Content-Type', 'application/json');
+                            req.send({ "myfield": "some data" });
+                        })
+                        .res(function (res) {
+                            expect(res.status).to.equal(dummyStatus);
+                            done();
+                        });
+                });
+        });
+
+        it("MUST NOT match against request with the a request body that does NOT match a given regex", function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            method: "post",
+                            url: dummyUrl,
+                            body: "regex(some.+data)",
+                            contentType: 'application/json'
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.post(dummyUrl)
+                        .req(function (req) {
+                            req.set('Content-Type', 'application/json');
+                            req.send({ "myfield": "other data" });
+                        })
+                        .res(function (res) {
+                            expect(res.status).to.equal(404);
                             done();
                         });
                 });

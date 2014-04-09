@@ -95,6 +95,17 @@ given below. (Note that all fields are optional unless otherwise specified):
         "times": _integer value for use with an expectation indicating how many times to expect a match_
     }
 
+NOTE: to match against a regex instead of a literal (i.e. for matching against urls, headers or the body) one simply wraps the literal in a "regex" field. E.g.:
+
+    {
+        "criteria": {
+            ...
+            "url": {
+                "regex": "^.+$"
+            }
+        }
+    }
+
 ### DEL _vanilli/stubs
 Clears down all stubs.
 

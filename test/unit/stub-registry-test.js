@@ -9,7 +9,7 @@ var vanilliLogLevel = "fatal",
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl = ".+",
+        dummyUrl = { regex: ".+" },
         dummyPath = "/some/url",
         dummyCriteria = {
             url: dummyUrl,
@@ -259,7 +259,7 @@ describe('The stub registry', function () {
         it('will match on stub specified with url regex', function () {
             registry.addStub({
                 criteria: {
-                    url: "/my/.+$"
+                    url: { regex: "/my/.+$" }
                 },
                 respondWith: dummyRespondWith
             });
@@ -367,12 +367,12 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will match on stub specified with header regex', function () {
+        it('will match on stub specified with header matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: /^myval.+$/
+                        myheader: { regex: "my.+al" }
                     }
                 },
                 respondWith: dummyRespondWith
@@ -382,7 +382,8 @@ describe('The stub registry', function () {
                 path: path("my/url"),
                 method: 'GET',
                 headers: {
-                    myheader: "myvalue" }
+                    myheader: "myvalue"
+                }
             })).to.exist;
         });
 
@@ -453,20 +454,20 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                 path: path("my/url"),
                 method: 'GET',
-                body: {
+                body: JSON.stringify({
                     myfield: "myvalue"
-                },
+                }),
                 contentType: function () {
                     return "application/json";
                 }
             })).to.exist;
         });
 
-        it('will match on stub specified with body content regex', function () {
+        it('will match on stub specified with body content matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
-                    body: /"myfield":"myvalue"/,
+                    body: { regex: "myfi.+ld" },
                     contentType: "application/json"
                 },
                 respondWith: dummyRespondWith
@@ -499,9 +500,9 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                 path: path("my/url"),
                 method: 'GET',
-                body: {
+                body: JSON.stringify({
                     myfield: "myvalue"
-                },
+                }),
                 contentType: function () {
                     return "text/plain";
                 }
@@ -555,12 +556,12 @@ describe('The stub registry', function () {
             )).to.exist;
         });
 
-        it('will match on stub specified with query param value regex', function () {
+        it('will match on stub specified with query param value matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
                     query: {
-                        param1: /^val.+$/
+                        param1: { regex: "va.+ue" }
                     }
                 },
                 respondWith: dummyRespondWith
