@@ -9,7 +9,7 @@ var vanilliLogLevel = "fatal",
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl = { regex: ".+" },
+        dummyUrl = ".+",
         dummyPath = "/some/url",
         dummyCriteria = {
             url: dummyUrl,
@@ -259,7 +259,7 @@ describe('The stub registry', function () {
         it('will match on stub specified with url regex', function () {
             registry.addStub({
                 criteria: {
-                    url: { regex: "/my/.+$" }
+                    url: "/my/.+$"
                 },
                 respondWith: dummyRespondWith
             });
@@ -372,7 +372,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: { regex: "my.+al" }
+                        myheader: "my.+al"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -561,7 +561,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     query: {
-                        param1: { regex: "va.+ue" }
+                        param1: "va.+ue"
                     }
                 },
                 respondWith: dummyRespondWith
