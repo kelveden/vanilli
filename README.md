@@ -89,7 +89,8 @@ given below. (Note that all fields are optional unless otherwise specified):
             "headers": {
                 "_header1_": _value1_,
                 ...
-            }
+            },
+            "wait": _integer value representing the number of milliseconds that vanilli will wait before sending the response to the stub_
         },
         "expect": true,
         "times": _integer value for use with an expectation indicating how many times to expect a match_
