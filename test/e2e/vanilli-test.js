@@ -971,6 +971,36 @@ describe('The Vanilli server', function () {
                         });
                 });
         });
+
+        it("MUST only be closed after waiting the specified length of time", function (done) {
+            var startResponse, endResponse;
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus,
+                            wait: 1000
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    startResponse = (new Date()).getTime();
+                    vanilliClient.get(dummyUrl)
+                        .req(function (req) {
+                            req.buffer();
+                        })
+                        .res(function () {
+                            endResponse = (new Date()).getTime();
+                            expect(endResponse - startResponse).to.be.greaterThan(1000);
+                            done();
+                        });
+                });
+        });
     });
 
     describe('captures', function () {
