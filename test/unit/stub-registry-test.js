@@ -183,17 +183,6 @@ describe('The stub registry', function () {
 
             expect(stub.respondWith.contentType).to.equal('my/contenttype');
         });
-
-        it('rejects a stub containing a url with query', function () {
-            expect(function () {
-                registry.addStub({
-                    criteria: {
-                        url: "/my/url?some=data"
-                    },
-                    respondWith: dummyRespondWith
-                });
-            }).to.throw(/query/);
-        });
     });
 
     describe('getter', function () {
