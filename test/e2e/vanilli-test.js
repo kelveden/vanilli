@@ -202,6 +202,25 @@ describe('The Vanilli server', function () {
                 });
         });
 
+        it('CAN have no explicit method', function (done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.set('Content-Type', 'application/json');
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
+                        },
+                        respondWith: {
+                            status: dummyStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    done();
+                });
+        });
+
         it('MUST have a contentType if a response body is specified', function (done) {
             vanilliClient.post('/_vanilli/stubs')
                 .req(function (req) {
@@ -723,6 +742,33 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl,
                             method: 'PUT'
+                        },
+                        respondWith: {
+                            status: expectedStatus,
+                            body: { some: "data" },
+                            contentType: "application/json"
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.put(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            expect(res.body.some).to.be.equal("data");
+                            done();
+                        });
+                });
+        });
+
+        it('MUST be honoured for request if it matches a stub which has no explicit method', function (done) {
+            var expectedStatus = 234;
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: dummyUrl
                         },
                         respondWith: {
                             status: expectedStatus,

@@ -65,17 +65,6 @@ describe('The stub registry', function () {
             expect(expectation.expect).to.be.true;
         });
 
-        it('sets the method of criteria to \'GET\' if not explicitly specified', function () {
-            var expectation = registry.addStub({
-                criteria: {
-                    url: dummyUrl
-                },
-                respondWith: dummyRespondWith
-            });
-
-            expect(registry.getById(expectation.id).criteria.method).to.equal('GET');
-        });
-
         it('keeps the \'times\' of an expectation as 0 if specified', function () {
             var expectation = registry.addStub({
                 criteria: dummyCriteria,
