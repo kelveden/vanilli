@@ -607,6 +607,106 @@ describe('The stub registry', function () {
                 path: path(dummyPath), method: 'GET', query: function () { return "param1=myvalue1"; }
             })).to.not.exist;
         });
+
+        it('returns null if no stub can be matched', function () {
+            registry.addStub({
+                criteria: {
+                    url: "my/url"
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({ path: path("another/url"), method: 'GET' })).to.not.exist;
+        });
+
+        it('matches the first matching stub', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: 123
+                }
+            });
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: 456
+                }
+            });
+
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(123);
+        });
+
+        it('matches the highest priority (i.e. lowest number) matching stub', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                priority: 1,
+                respondWith: {
+                    status: 123
+                }
+            });
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                priority: 0,
+                respondWith: {
+                    status: 456
+                }
+            });
+
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(456);
+        });
+
+        it('matches the first matching stub when priorities match', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                priority: 1,
+                respondWith: {
+                    status: 123
+                }
+            });
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                priority: 1,
+                respondWith: {
+                    status: 456
+                }
+            });
+
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(123);
+        });
+
+        it('assumes a priority of 0 for stubs without an explicit priority', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                priority: 1,
+                respondWith: {
+                    status: 123
+                }
+            });
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl
+                },
+                respondWith: {
+                    status: 456
+                }
+            });
+
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(456);
+        });
     });
 
     describe('verifier', function () {

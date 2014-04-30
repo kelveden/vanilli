@@ -797,6 +797,82 @@ describe('The Vanilli server', function () {
                     done();
                 });
         });
+
+        it('MUST be honoured by the first stub that matches the request', function (done) {
+            var expectedStatus = 234,
+                anotherStatus = 123;
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send([
+                        {
+                            criteria: {
+                                url: dummyUrl,
+                                method: 'GET'
+                            },
+                            respondWith: {
+                                status: expectedStatus
+                            }
+                        },
+                        {
+                            criteria: {
+                                url: dummyUrl,
+                                method: 'GET'
+                            },
+                            respondWith: {
+                                status: anotherStatus
+                            }
+                        }
+                    ]);
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
+        });
+
+        it('MUST be honoured by the highest (i.e. lowest number) priority stub that matches the request', function (done) {
+            var expectedStatus = 234,
+                anotherStatus = 123;
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send([
+                        {
+                            criteria: {
+                                url: dummyUrl,
+                                method: 'GET'
+                            },
+                            priority: 1,
+                            respondWith: {
+                                status: anotherStatus
+                            }
+                        },
+                        {
+                            criteria: {
+                                url: dummyUrl,
+                                method: 'GET'
+                            },
+                            priority: 0,
+                            respondWith: {
+                                status: expectedStatus
+                            }
+                        }
+                    ]);
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(dummyUrl)
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
+        });
     });
 
     describe('responses', function () {
