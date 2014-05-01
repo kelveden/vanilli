@@ -350,7 +350,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: "my.+al"
+                        myheader: "my.+alue"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -365,12 +365,12 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will NOT match on stub specified with different header value', function () {
+        it('will not match on stub specified with header partially matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: "myvalue"
+                        myheader: "my.+al"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -380,7 +380,28 @@ describe('The stub registry', function () {
                 path: path("my/url"),
                 method: 'GET',
                 headers: {
-                    myheader: "anothervalue" }
+                    myheader: "myvalue"
+                }
+            })).to.not.exist;
+        });
+
+        it('will NOT match on stub specified with different header value', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    headers: {
+                        myheader: "0"
+                    }
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({
+                path: path("my/url"),
+                method: 'GET',
+                headers: {
+                    myheader: "10"
+                }
             })).to.not.exist;
         });
 
@@ -445,7 +466,9 @@ describe('The stub registry', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
-                    body: { regex: "myfi.+ld" },
+                    body: {
+                        regex: "myfi.+ld"
+                    },
                     contentType: "application/json"
                 },
                 respondWith: dummyRespondWith
@@ -539,6 +562,28 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     query: {
+                        param1: "va.+ue1"
+                    }
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({
+                    path: path(dummyPath),
+                    method: 'GET',
+                    query: {
+                        param1: "value1",
+                        param2: "value2"
+                    }
+                }
+            )).to.exist;
+        });
+
+        it('will not match on stub specified with query param value partially matching regex', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    query: {
                         param1: "va.+ue"
                     }
                 },
@@ -548,9 +593,11 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: { param1: "value1", param2: "value2" }
+                    query: {
+                        param1: "value1"
+                    }
                 }
-            )).to.exist;
+            )).to.not.exist;
         });
 
         it('will NOT match on stub specified with different query param value', function () {
@@ -558,7 +605,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     query: {
-                        param1: "value1"
+                        param1: "0"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -567,7 +614,9 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                     path: path(dummyPath),
                     method: 'GET',
-                    query: { param1: "anothervalue" }
+                    query: {
+                        param1: "10"
+                    }
                 }
             )).to.not.exist;
         });
@@ -604,7 +653,9 @@ describe('The stub registry', function () {
             });
 
             expect(registry.findMatchFor({
-                path: path(dummyPath), method: 'GET', query: function () { return "param1=myvalue1"; }
+                path: path(dummyPath), method: 'GET', query: function () {
+                    return "param1=myvalue1";
+                }
             })).to.not.exist;
         });
 
