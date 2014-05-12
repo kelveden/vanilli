@@ -873,6 +873,35 @@ describe('The Vanilli server', function () {
                         });
                 });
         });
+
+        it('MUST NOT be URL-decoded before matching against stubs', function (done) {
+            var expectedStatus = 234,
+                urlPath = "/some/url";
+
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: {
+                            url: urlPath,
+                            query: {
+                                param1: encodeURIComponent("&abc&")
+                            },
+                            method: 'GET'
+                        },
+                        respondWith: {
+                            status: expectedStatus
+                        }
+                    });
+                })
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliClient.get(urlPath + "?param1=" + encodeURIComponent("&abc&"))
+                        .res(function (res) {
+                            expect(res.status).to.be.equal(expectedStatus);
+                            done();
+                        });
+                });
+        });
     });
 
     describe('responses', function () {
