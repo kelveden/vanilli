@@ -52,7 +52,9 @@ gulp.task('bump', function () {
                 .pipe(git.commit(newVersion));
 
             git.tag(newVersion, newVersion);
-            git.push("origin", "master", { args: "--all" })
+            git.push("origin", "master", { args: "--tags" })
+                .end();
+            git.push("origin", "master")
                 .end();
         });
 });
