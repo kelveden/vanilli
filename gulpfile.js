@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    gutil = require('gulp-util'),
     jshint = require('gulp-jshint'),
     mocha = require('gulp-mocha'),
     complexity = require('gulp-complexity'),
