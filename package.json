@@ -31,6 +31,7 @@
     "gulp": "3.x",
     "gulp-bump": "0.x",
     "gulp-complexity": "0.x",
+    "gulp-debug": "0.x",
     "gulp-git": "0.x",
     "gulp-jshint": "1.x",
     "gulp-mocha": "0.x",

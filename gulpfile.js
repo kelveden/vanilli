@@ -4,10 +4,11 @@ var gulp = require('gulp'),
     complexity = require('gulp-complexity'),
     git = require('gulp-git'),
     bump = require('gulp-bump'),
+    debug = require('gulp-debug'),
     argv = require('minimist')(process.argv.slice(3));
 
 gulp.task('complexity', function () {
-    gulp.src('lib/**/*.js')
+    return gulp.src('lib/**/*.js')
         .pipe(complexity({
             cyclomatic: [5],
             halstead: [16],
@@ -23,15 +24,15 @@ gulp.task('lint', function () {
 });
 
 gulp.task('test-unit', function () {
-    gulp.src('test/unit/*.js', { read: false })
+    return gulp.src('test/unit/*.js', { read: false })
         .pipe(mocha({
             reporter: 'spec',
             bail: false
         }));
 });
 
-gulp.task('test-e2e', function () {
-    gulp.src('test/e2e/*.js', { read: false })
+gulp.task('test', [ 'test-unit' ], function () {
+    return gulp.src('test/e2e/*.js', { read: false })
         .pipe(mocha({
             reporter: 'spec',
             bail: false
@@ -56,8 +57,8 @@ gulp.task('bump', function () {
 });
 
 gulp.task('tdd-watch', function () {
-    gulp.watch(['**/*.js', '!node_modules/**/*.js'], ['test-unit']);
+    gulp.watch([ 'lib/*.js', 'test/**/*.js' ], [ 'test' ]);
 });
 
-gulp.task('default', ['lint', 'test-unit', 'test-e2e']);
-gulp.task('tdd', ['test-unit', 'tdd-watch']);
+gulp.task('default', [ 'lint', 'test' ]);
+gulp.task('tdd', [ 'test', 'tdd-watch' ]);
