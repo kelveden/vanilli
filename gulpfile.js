@@ -39,21 +39,22 @@ gulp.task('test', [ 'test-unit' ], function () {
         }));
 });
 
-gulp.task('release', [ 'bump' ], function () {
-    var version = require('./package.json').version;
-
-    gulp.src('./package.json')
-        .pipe(git.commit(version));
-
-    git.tag(version, version);
-
-    return git.push("origin", "master");
-});
-
 gulp.task('bump', function () {
-    return gulp.src('./package.json')
+    var packageFile = "./package.json";
+
+    gulp.src(packageFile)
         .pipe(bump({ type: argv.type || 'build'}))
-        .pipe(gulp.dest('./'));
+        .pipe(gulp.dest('./'))
+        .on('end', function () {
+            var newVersion = require(packageFile).version;
+
+            gulp.src(packageFile)
+                .pipe(git.commit(newVersion));
+
+            git.tag(newVersion, newVersion);
+            git.push("origin", "master", { args: "--tags" })
+                .end();
+        });
 });
 
 gulp.task('tdd-watch', function () {
