@@ -2,7 +2,7 @@ var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     mocha = require('gulp-mocha'),
     complexity = require('gulp-complexity'),
-    git = require('gulp-git'),
+    exec = require('child_process').exec;
     bump = require('gulp-bump'),
     debug = require('gulp-debug'),
     argv = require('minimist')(process.argv.slice(3));
@@ -48,14 +48,10 @@ gulp.task('bump', function () {
         .on('end', function () {
             var newVersion = require(packageFile).version;
 
-            gulp.src(packageFile)
-                .pipe(git.commit(newVersion));
-
-            git.tag(newVersion, newVersion);
-            git.push("origin", "master", { args: "--tags" })
-                .end();
-            git.push("origin", "master")
-                .end();
+            exec('git commit -m "' + newVersion + '"; git tag ' + newVersion + '; git push --tags; git push', {}, function (err, stdout, stderr) {
+                if (err) throw err;
+                gutil.log(stdout, stderr);
+            })
         });
 });
 
