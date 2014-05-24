@@ -49,7 +49,7 @@ gulp.task('bump', function () {
         .on('end', function () {
             var newVersion = require(packageFile).version;
 
-            exec('git commit -m "' + newVersion + '"; git tag ' + newVersion + '; git push --tags; git push', {}, function (err, stdout, stderr) {
+            exec('git commit -am "' + newVersion + '"; git tag ' + newVersion + '; git push --tags; git push', {}, function (err, stdout, stderr) {
                 if (err) throw err;
                 gutil.log(stdout, stderr);
             })
