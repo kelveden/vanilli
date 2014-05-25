@@ -1,9 +1,10 @@
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
     jshint = require('gulp-jshint'),
+    jshintStylish = require('jshint-stylish'),
     mocha = require('gulp-mocha'),
     complexity = require('gulp-complexity'),
-    exec = require('child_process').exec;
+    exec = require('child_process').exec,
     bump = require('gulp-bump'),
     debug = require('gulp-debug'),
     argv = require('minimist')(process.argv.slice(3));
@@ -18,9 +19,9 @@ gulp.task('complexity', function () {
 });
 
 gulp.task('lint', function () {
-    return gulp.src(['gulpfile.js', 'lib/**/*.js', 'test/**/*.js'])
+    gulp.src(['gulpfile.js', 'lib/**/*.js', 'test/**/*.js'])
         .pipe(jshint())
-        .pipe(jshint.reporter('default'))
+        .pipe(jshint.reporter(jshintStylish))
         .pipe(jshint.reporter('fail'));
 });
 
@@ -52,7 +53,7 @@ gulp.task('bump', function () {
             exec('git commit -am "' + newVersion + '"; git tag ' + newVersion + '; git push --tags; git push', {}, function (err, stdout, stderr) {
                 if (err) throw err;
                 gutil.log(stdout, stderr);
-            })
+            });
         });
 });
 

@@ -35,6 +35,7 @@
     "gulp-jshint": "1.x",
     "gulp-mocha": "0.x",
     "gulp-util": "2.x",
+    "jshint-stylish": "0.x",
     "minimist": "0.x",
     "mocha": "1.x",
     "portfinder": "0.x"
