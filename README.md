@@ -71,7 +71,7 @@ given below. (Note that all fields are optional unless otherwise specified):
         "criteria": {
             "method": _HTTP method to match against (case-insensitive) - defaults to 'GET' if not specified_,
             "url": _url to match against - can be a string or regex_, -- MANDATORY
-            "body": _the request entity body to match against; can be a literal or a regex,
+            "body": _the request entity body to match against_,
             "contentType": _the request entity content type to match against; i.e. Content-Type header_,
             "query": {
                 "_param1_": _expected value; literal or regex_,

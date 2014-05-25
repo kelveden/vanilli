@@ -462,30 +462,6 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will match on stub specified with body content matching regex', function () {
-            registry.addStub({
-                criteria: {
-                    url: dummyUrl,
-                    body: {
-                        regex: "myfi.+ld"
-                    },
-                    contentType: "application/json"
-                },
-                respondWith: dummyRespondWith
-            });
-
-            expect(registry.findMatchFor({
-                path: path("my/url"),
-                method: 'GET',
-                body: JSON.stringify({
-                    myfield: "myvalue"
-                }),
-                contentType: function () {
-                    return "application/json";
-                }
-            })).to.exist;
-        });
-
         it('will NOT match on stub specified with matching body but different content type', function () {
             registry.addStub({
                 criteria: {
