@@ -9,7 +9,7 @@ var vanilliLogLevel = "fatal",
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl = ".+",
+        dummyUrl = { regex: ".+" },
         dummyPath = "/some/url",
         dummyCriteria = {
             url: dummyUrl,
@@ -237,12 +237,25 @@ describe('The stub registry', function () {
         it('will match on stub specified with url regex', function () {
             registry.addStub({
                 criteria: {
-                    url: "/my/.+$"
+                    url: {
+                        regex: "/my/.+$"
+                    }
                 },
                 respondWith: dummyRespondWith
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
+        });
+
+        it('will not match on stub specified with url string that happens to be a matching regex', function () {
+            registry.addStub({
+                criteria: {
+                    url: "/my/.+$"
+                },
+                respondWith: dummyRespondWith
+            });
+
+            expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.not.exist;
         });
 
         it('will match on stub specified with url string with leading "/"', function () {
@@ -350,7 +363,9 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: "my.+alue"
+                        myheader: {
+                            regex: "my.+alue"
+                        }
                     }
                 },
                 respondWith: dummyRespondWith
@@ -365,12 +380,12 @@ describe('The stub registry', function () {
             })).to.exist;
         });
 
-        it('will not match on stub specified with header partially matching regex', function () {
+        it('will not match on stub specified with header string that happens to be matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
                     headers: {
-                        myheader: "my.+al"
+                        myheader: "my.+alue"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -538,7 +553,9 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl,
                     query: {
-                        param1: "va.+ue1"
+                        param1: {
+                            regex: "va.+ue1"
+                        }
                     }
                 },
                 respondWith: dummyRespondWith
@@ -555,12 +572,12 @@ describe('The stub registry', function () {
             )).to.exist;
         });
 
-        it('will not match on stub specified with query param value partially matching regex', function () {
+        it('will not match on stub specified with query param value string that happens to be matching regex', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl,
                     query: {
-                        param1: "va.+ue"
+                        param1: "va.+ue1"
                     }
                 },
                 respondWith: dummyRespondWith
@@ -570,7 +587,8 @@ describe('The stub registry', function () {
                     path: path(dummyPath),
                     method: 'GET',
                     query: {
-                        param1: "value1"
+                        param1: "value1",
+                        param2: "value2"
                     }
                 }
             )).to.not.exist;
