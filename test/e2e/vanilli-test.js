@@ -23,15 +23,21 @@ describe('The Vanilli server', function () {
         dummyStatus = 200,
         vanilliClient, vanilliServer;
 
-    before(function (done) {
+    function getAvailablePort(success, failure) {
         portfinder.getPort(function (err, port) {
             if (err) {
-                done(err);
+                failure(err);
             } else {
-                vanilliPort = port;
-                done();
+                success(port);
             }
         });
+    }
+
+    before(function (done) {
+        getAvailablePort(function (port) {
+            vanilliPort = port;
+            done();
+        }, done);
     });
 
     beforeEach(function () {
@@ -179,6 +185,25 @@ describe('The Vanilli server', function () {
                 expect(res.body).to.have.length(2);
                 done();
             });
+    });
+
+    it('MUST serve up pre-defined static content if no stub is matched', function (done) {
+        getAvailablePort(function (port) {
+            var vanilliServer = vanilli.start({
+                    port: port,
+                    logLevel: vanilliLogLevel,
+                    allowedHeadersForCors: [ allowedHeaderForCors ],
+                    staticRoot: "test/e2e/static"
+                }),
+                vanilliClient = chai.request(vanilliServer.url);
+
+            vanilliClient.get('/sub/something.html')
+                .res(function (res) {
+                    expect(res.status).to.be.equal(200);
+                    vanilliServer.close();
+                    done();
+                });
+        }, done);
     });
 
     describe('stubs', function () {
