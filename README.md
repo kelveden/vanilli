@@ -41,7 +41,8 @@ Vanilli is configured as it started via the `start(config)` function.
     {
         port: <port to run Vanilli on>,
         allowedHeadersForCors: <array containing extra headers to add to the Access-Control-Allow-Headers CORS header in vanilli responses>,
-        logLevel: <log level for vanilli; defaults to 'error'>
+        logLevel: <log level for vanilli; defaults to 'error'>,
+        staticRoot: <path to folder containing static content that will be used in preference to trying to match a request against a stub>
     }
 
 ## JSONP
