@@ -41,7 +41,12 @@ describe('The Vanilli server', function () {
     });
 
     beforeEach(function () {
-        vanilliServer = vanilli.start({ port: vanilliPort, logLevel: vanilliLogLevel, allowedHeadersForCors: [ allowedHeaderForCors ] });
+        vanilliServer = vanilli.start({
+            port: vanilliPort,
+            logLevel: vanilliLogLevel,
+            allowedHeadersForCors: [ allowedHeaderForCors ],
+            staticRoot: "test/e2e/static"
+        });
         vanilliClient = chai.request(vanilliServer.url);
     });
 
@@ -188,6 +193,14 @@ describe('The Vanilli server', function () {
     });
 
     it('MUST serve up pre-defined static content if no stub is matched', function (done) {
+        vanilliClient.get('/sub/something.html')
+            .res(function (res) {
+                expect(res.status).to.be.equal(200);
+                done();
+            });
+    });
+
+    it('MUST serve from stubs if static content not found', function (done) {
         getAvailablePort(function (port) {
             var vanilliServer = vanilli.start({
                     port: port,
