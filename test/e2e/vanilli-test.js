@@ -199,8 +199,8 @@ describe('The Vanilli server', function () {
 
             vanilliClient.get('/sub/something.html')
                 .res(function (res) {
-                    expect(res.status).to.be.equal(200);
                     vanilliServer.close();
+                    expect(res.status).to.be.equal(200);
                     done();
                 });
         }, done);
