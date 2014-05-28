@@ -192,7 +192,9 @@ describe('The Vanilli server', function () {
     });
 
     describe("static content", function () {
-        var vanilliServer, vanilliClient;
+        var vanilliServer,
+            vanilliClient,
+            stubStatus = 234;
 
         beforeEach(function (done) {
             getAvailablePort(function (port) {
@@ -202,7 +204,8 @@ describe('The Vanilli server', function () {
                     allowedHeadersForCors: [ allowedHeaderForCors ],
                     static: {
                         root: "test/e2e/static",
-                        filter: [ "**/*.js", "**/*.html", "**/*.jpg", "**/*.png", "**/*.gif" ]
+                        include: [ "**/*" ],
+                        exclude: [ "**/*.xxx" ]
                     }
                 });
                 vanilliClient = chai.request(vanilliServer.url);
@@ -214,20 +217,43 @@ describe('The Vanilli server', function () {
             vanilliServer.close();
         });
 
+        function dummyStub(url, status, done) {
+            vanilliClient.post('/_vanilli/stubs')
+                .req(function (req) {
+                    req.send({
+                        criteria: { url: url },
+                        respondWith: { status: status }
+                    });
+                })
+                .res(done);
+        }
+
         it('MUST be served if request meets criteria of static filter', function (done) {
             vanilliClient.get('/sub/something.html')
                 .res(function (res) {
-                    expect(res.status).to.be.equal(200);
+                    expect(res.status).to.equal(200);
                     done();
                 });
         });
 
+        it('MUST serve up stub if request meets include criteria but not excludes', function (done) {
+            dummyStub('/sub/exists.xxx', stubStatus, function () {
+                vanilliClient.get('/sub/exists.xxx')
+                    .res(function (res) {
+                        expect(res.status).to.equal(stubStatus);
+                        done();
+                    });
+            });
+        });
+
         it('MUST serve up 404 if request meets criteria of static filter but no matching static content exists', function (done) {
-            vanilliClient.get('/sub/doesnotexist.jpg')
-                .res(function (res) {
-                    expect(res.status).to.be.equal(404);
-                    done();
-                });
+            dummyStub('/sub/doesnotexist.jpg', stubStatus, function () {
+                vanilliClient.get('/sub/doesnotexist.jpg')
+                    .res(function (res) {
+                        expect(res.status).to.equal(404);
+                        done();
+                    });
+            });
         });
     });
 
