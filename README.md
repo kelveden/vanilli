@@ -139,3 +139,13 @@ you pipe the sysout through bunyan to get your log output nicely formatted and c
 ``` bash
 $ bin/vanilli.sh | bunyan
 ```
+
+## Releasing
+Releasing new versions of vanilli consists of two steps:
+
+ 1. Bumping the version
+   * Bump build version: `gulp bump`
+   * Bump minor version: `gulp bump --type minor`
+   * Bump major version: `gulp bump --type major`
+ 2. Publishing to npm: `npm publish`
+
