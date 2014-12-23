@@ -1,7 +1,6 @@
 # vanilli
 
 [![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
-[![Dependencies Status](https://david-dm.org/kelveden/vanilli.png?branch=master)](https://david-dm.org/kelveden/vanilli)
 
 > *IMPORTANT*: Before considering using vanilli or milli there is a reliance on CORS that may be a gotcha for you. See the section on CORS below for more info.
 
