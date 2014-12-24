@@ -15,14 +15,14 @@ describe('The stub registry', function () {
             url: dummyUrl,
             method: 'GET'
         },
-        dummyRespondWith = {
+        dummyResponse = {
             status: dummyStatus
         },
         dummyStub = {
             criteria: {
                 url: dummyUrl
             },
-            respondWith: dummyRespondWith
+            response: dummyResponse
         };
 
     function path(url) {
@@ -47,7 +47,7 @@ describe('The stub registry', function () {
         it('can be used to add a stub', function () {
             var stub = registry.addStub({
                 criteria: dummyCriteria,
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.getById(stub.id)).to.exist;
@@ -56,7 +56,7 @@ describe('The stub registry', function () {
         it('can be used to add an expectation', function () {
             var expectation = registry.addStub({
                 criteria: dummyCriteria,
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 1,
                 expect: true
             });
@@ -68,7 +68,7 @@ describe('The stub registry', function () {
         it('keeps the \'times\' of an expectation as 0 if specified', function () {
             var expectation = registry.addStub({
                 criteria: dummyCriteria,
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 0
             });
 
@@ -78,7 +78,7 @@ describe('The stub registry', function () {
         it('rejects a stub without criteria', function () {
             expect(function () {
                 registry.addStub({
-                    respondWith: dummyRespondWith
+                    response: dummyResponse
                 });
             }).to.throw(/criteria/);
         });
@@ -88,34 +88,34 @@ describe('The stub registry', function () {
                 registry.addStub({
                     criteria: {
                     },
-                    respondWith: dummyRespondWith
+                    response: dummyResponse
                 });
             }).to.throw(/url/);
         });
 
-        it('rejects a stub without respondWith', function () {
+        it('rejects a stub without response', function () {
             expect(function () {
                 registry.addStub({
                     criteria: dummyCriteria
                 });
-            }).to.throw(/respondWith/);
+            }).to.throw(/response/);
         });
 
-        it('rejects a stub without a respondWith status', function () {
+        it('rejects a stub without a response status', function () {
             expect(function () {
                 registry.addStub({
                     criteria: dummyCriteria,
-                    respondWith: {
+                    response: {
                     }
                 });
             }).to.throw(/status/);
         });
 
-        it('rejects a stub with a respondWith body but no content type', function () {
+        it('rejects a stub with a response body but no content type', function () {
             expect(function () {
                 registry.addStub({
                     criteria: dummyCriteria,
-                    respondWith: {
+                    response: {
                         status: dummyStatus,
                         body: {}
                     }
@@ -130,7 +130,7 @@ describe('The stub registry', function () {
                         url: dummyUrl,
                         body: { }
                     },
-                    respondWith: dummyRespondWith
+                    response: dummyResponse
                 });
             }).to.throw(/contentType/);
         });
@@ -140,7 +140,7 @@ describe('The stub registry', function () {
                     criteria: {
                         url: dummyUrl
                     },
-                    respondWith: dummyRespondWith
+                    response: dummyResponse
                 },
                 id1 = registry.addStub(dummyStub).id,
                 id2 = registry.addStub(dummyStub).id;
@@ -160,7 +160,7 @@ describe('The stub registry', function () {
                         'Content-Type': 'my/contenttype'
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(stub.criteria.contentType).to.equal('my/contenttype');
@@ -171,7 +171,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: dummyStatus,
                     body: { some: "data" },
                     contentType: 'another/contenttype',
@@ -181,7 +181,7 @@ describe('The stub registry', function () {
                 }
             });
 
-            expect(stub.respondWith.contentType).to.equal('my/contenttype');
+            expect(stub.response.contentType).to.equal('my/contenttype');
         });
     });
 
@@ -217,7 +217,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "my/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("another/url"), method: 'GET' })).to.not.exist;
@@ -228,7 +228,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "my/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("/my/url"), method: 'GET' })).to.exist;
@@ -241,7 +241,7 @@ describe('The stub registry', function () {
                         regex: "/my/.+$"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
@@ -252,7 +252,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "/my/.+$"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.not.exist;
@@ -263,7 +263,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "/my/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
@@ -274,7 +274,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "/my/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("/my/url"), method: 'GET' })).to.exist;
@@ -285,7 +285,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "some/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("some/url/or/other"), method: 'GET' })).to.not.exist;
@@ -297,7 +297,7 @@ describe('The stub registry', function () {
                     url: dummyUrl,
                     method: "GET"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: "GET" })).to.exist;
@@ -309,7 +309,7 @@ describe('The stub registry', function () {
                     url: dummyUrl,
                     method: "POST"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: "GET" })).to.not.exist;
@@ -321,7 +321,7 @@ describe('The stub registry', function () {
                     url: dummyUrl,
                     method: "GeT"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: "GET" })).to.exist;
@@ -333,7 +333,7 @@ describe('The stub registry', function () {
                     url: dummyUrl,
                     method: "GET"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: "POST" })).to.not.exist;
@@ -347,7 +347,7 @@ describe('The stub registry', function () {
                         myheader: "myvalue"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -368,7 +368,7 @@ describe('The stub registry', function () {
                         }
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -388,7 +388,7 @@ describe('The stub registry', function () {
                         myheader: "my.+alue"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -408,7 +408,7 @@ describe('The stub registry', function () {
                         myheader: "0"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -428,7 +428,7 @@ describe('The stub registry', function () {
                         myheader: "myvalue"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET', headers: {} })).to.not.exist;
@@ -443,7 +443,7 @@ describe('The stub registry', function () {
                         myheader2: "myvalue2"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -462,7 +462,7 @@ describe('The stub registry', function () {
                     },
                     contentType: "application/json"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -486,7 +486,7 @@ describe('The stub registry', function () {
                     },
                     contentType: "application/json"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -507,7 +507,7 @@ describe('The stub registry', function () {
                     url: "my/url",
                     method: 'GET'
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
@@ -520,7 +520,7 @@ describe('The stub registry', function () {
                     url: "my/url",
                     method: 'GET'
                 },
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 1,
                 expect: true
             });
@@ -537,7 +537,7 @@ describe('The stub registry', function () {
                         param1: "value1"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -558,7 +558,7 @@ describe('The stub registry', function () {
                         }
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -580,7 +580,7 @@ describe('The stub registry', function () {
                         param1: "va.+ue1"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -602,7 +602,7 @@ describe('The stub registry', function () {
                         param1: "0"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -623,7 +623,7 @@ describe('The stub registry', function () {
                         param1: "value1"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -643,7 +643,7 @@ describe('The stub registry', function () {
                         param2: "myvalue2"
                     }
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({
@@ -658,7 +658,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "my/url"
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.findMatchFor({ path: path("another/url"), method: 'GET' })).to.not.exist;
@@ -669,7 +669,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: 123
                 }
             });
@@ -677,12 +677,12 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: 456
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(123);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(123);
         });
 
         it('matches the highest priority (i.e. lowest number) matching stub', function () {
@@ -691,7 +691,7 @@ describe('The stub registry', function () {
                     url: dummyUrl
                 },
                 priority: 1,
-                respondWith: {
+                response: {
                     status: 123
                 }
             });
@@ -700,12 +700,12 @@ describe('The stub registry', function () {
                     url: dummyUrl
                 },
                 priority: 0,
-                respondWith: {
+                response: {
                     status: 456
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(456);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(456);
         });
 
         it('matches the first matching stub when priorities match', function () {
@@ -714,7 +714,7 @@ describe('The stub registry', function () {
                     url: dummyUrl
                 },
                 priority: 1,
-                respondWith: {
+                response: {
                     status: 123
                 }
             });
@@ -723,12 +723,12 @@ describe('The stub registry', function () {
                     url: dummyUrl
                 },
                 priority: 1,
-                respondWith: {
+                response: {
                     status: 456
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(123);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(123);
         });
 
         it('assumes a priority of 0 for stubs without an explicit priority', function () {
@@ -737,7 +737,7 @@ describe('The stub registry', function () {
                     url: dummyUrl
                 },
                 priority: 1,
-                respondWith: {
+                response: {
                     status: 123
                 }
             });
@@ -745,12 +745,12 @@ describe('The stub registry', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: 456
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).respondWith.status).to.equal(456);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(456);
         });
     });
 
@@ -766,7 +766,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "my/url"
                 },
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 1,
                 expect: true
             });
@@ -774,7 +774,7 @@ describe('The stub registry', function () {
                 criteria: {
                     url: "another/url"
                 },
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 2,
                 expect: true
             });
@@ -793,7 +793,7 @@ describe('The stub registry', function () {
                     method: 'GET',
                     times: 1
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             registry.findMatchFor({ path: path("my/url"), method: 'GET' });
@@ -807,7 +807,7 @@ describe('The stub registry', function () {
                     url: "my/url",
                     method: 'GET'
                 },
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             registry.findMatchFor({ path: path("my/url"), method: 'GET' });
@@ -821,7 +821,7 @@ describe('The stub registry', function () {
                     url: "my/url",
                     method: 'GET'
                 },
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 3,
                 expect: true
             });
@@ -838,7 +838,7 @@ describe('The stub registry', function () {
                     url: "my/url",
                     method: 'GET'
                 },
-                respondWith: dummyRespondWith,
+                response: dummyResponse,
                 times: 0,
                 expect: true
             });
@@ -860,7 +860,7 @@ describe('The stub registry', function () {
             // Given
             var stub = registry.addStub({
                 criteria: dummyCriteria,
-                respondWith: dummyRespondWith
+                response: dummyResponse
             });
 
             expect(registry.getById(stub.id)).to.exist;
@@ -891,7 +891,7 @@ describe('The stub registry', function () {
                         method: 'POST',
                         url: "/my/url"
                     },
-                    respondWith: dummyRespondWith,
+                    response: dummyResponse,
                     capture: "mycapture"
                 });
 

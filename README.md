@@ -82,7 +82,7 @@ given below. (Note that all fields are optional unless otherwise specified):
                 ...
             }
         },
-        "respondWith": {
+        "response": {
             "status": _the HTTP status code to respond with_, -- MANDATORY
             "body": _the response entity body_,
             "contentType": _the HTTP Content-Type of the response entity_,

@@ -72,7 +72,7 @@ describe('The Vanilli server', function () {
                     criteria: {
                         url: stubUrl
                     },
-                    respondWith: {
+                    response: {
                         status: dummyStatus
                     }
                 });
@@ -103,7 +103,7 @@ describe('The Vanilli server', function () {
                     criteria: {
                         url: stubUrl
                     },
-                    respondWith: {
+                    response: {
                         status: dummyStatus
                     }
                 });
@@ -123,7 +123,7 @@ describe('The Vanilli server', function () {
                     criteria: {
                         url: dummyUrl
                     },
-                    respondWith: {
+                    response: {
                         status: dummyStatus
                     }
                 });
@@ -154,7 +154,7 @@ describe('The Vanilli server', function () {
             criteria: {
                 url: dummyUrl
             },
-            respondWith: {
+            response: {
                 status: dummyStatus
             }
         };
@@ -175,7 +175,7 @@ describe('The Vanilli server', function () {
             criteria: {
                 url: dummyUrl
             },
-            respondWith: {
+            response: {
                 status: dummyStatus
             }
         };
@@ -222,7 +222,7 @@ describe('The Vanilli server', function () {
                 .req(function (req) {
                     req.send({
                         criteria: { url: url },
-                        respondWith: { status: status }
+                        response: { status: status }
                     });
                 })
                 .res(done);
@@ -265,7 +265,7 @@ describe('The Vanilli server', function () {
                     req.send({
                         criteria: {
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         }
                     });
@@ -286,7 +286,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         }
                     });
@@ -304,7 +304,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: 'my/url'
                         },
-                        respondWith: {
+                        response: {
                             status: 200,
                             body: {
                                 something: "else"
@@ -327,7 +327,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: 'my/url'
                         },
-                        respondWith: {
+                        response: {
                             status: 200
                         }
                     });
@@ -348,7 +348,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: url
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -373,7 +373,7 @@ describe('The Vanilli server', function () {
                             url: dummyUrl,
                             method: 'DELETE'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -402,7 +402,7 @@ describe('The Vanilli server', function () {
                                 "My-Header": expectedHeaderValue
                             }
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -430,7 +430,7 @@ describe('The Vanilli server', function () {
                             body: { myfield: "some data" },
                             contentType: 'application/json'
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         }
                     });
@@ -462,7 +462,7 @@ describe('The Vanilli server', function () {
                             body: expectedbody,
                             contentType: 'application/json'
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         }
                     });
@@ -486,7 +486,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -511,7 +511,7 @@ describe('The Vanilli server', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: 1
                 },
                 times: 1
@@ -519,7 +519,7 @@ describe('The Vanilli server', function () {
                 criteria: {
                     url: dummyUrl
                 },
-                respondWith: {
+                response: {
                     status: 2
                 }
             };
@@ -554,7 +554,7 @@ describe('The Vanilli server', function () {
                                 param1: "value1"
                             }
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         }
                     });
@@ -580,7 +580,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         },
                         times: 1,
@@ -611,7 +611,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         },
                         times: 1,
@@ -643,7 +643,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         },
                         times: 2,
@@ -678,7 +678,7 @@ describe('The Vanilli server', function () {
                             url: dummyUrl,
                             method: 'GET'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus,
                             body: { some: "data" },
                             contentType: "application/json"
@@ -706,7 +706,7 @@ describe('The Vanilli server', function () {
                             url: dummyUrl,
                             method: 'DELETE'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -731,7 +731,7 @@ describe('The Vanilli server', function () {
                             url: dummyUrl,
                             method: 'POST'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus,
                             body: { some: "data" },
                             contentType: "application/json"
@@ -759,7 +759,7 @@ describe('The Vanilli server', function () {
                             url: dummyUrl,
                             method: 'PUT'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus,
                             body: { some: "data" },
                             contentType: "application/json"
@@ -786,7 +786,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus,
                             body: { some: "data" },
                             contentType: "application/json"
@@ -826,7 +826,7 @@ describe('The Vanilli server', function () {
                                 url: dummyUrl,
                                 method: 'GET'
                             },
-                            respondWith: {
+                            response: {
                                 status: expectedStatus
                             }
                         },
@@ -835,7 +835,7 @@ describe('The Vanilli server', function () {
                                 url: dummyUrl,
                                 method: 'GET'
                             },
-                            respondWith: {
+                            response: {
                                 status: anotherStatus
                             }
                         }
@@ -864,7 +864,7 @@ describe('The Vanilli server', function () {
                                 method: 'GET'
                             },
                             priority: 1,
-                            respondWith: {
+                            response: {
                                 status: anotherStatus
                             }
                         },
@@ -874,7 +874,7 @@ describe('The Vanilli server', function () {
                                 method: 'GET'
                             },
                             priority: 0,
-                            respondWith: {
+                            response: {
                                 status: expectedStatus
                             }
                         }
@@ -904,7 +904,7 @@ describe('The Vanilli server', function () {
                             },
                             method: 'GET'
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -930,7 +930,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: expectedStatus
                         }
                     });
@@ -956,7 +956,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: expectedbody,
                             contentType: "application/json"
@@ -982,7 +982,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: "some data",
                             contentType: expectedContentType
@@ -1008,7 +1008,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             headers: {
                                 "My-Header": expectedHeaderValue
@@ -1033,7 +1033,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: {
                                 myfield: "@vanilli:queryparam1@"
@@ -1059,7 +1059,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: "something",
                             contentType: "text/plain"
@@ -1087,7 +1087,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: {
                                 myfield1: 123,
@@ -1118,7 +1118,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             body: "<html><body>some page</body></html>",
                             contentType: "text/html"
@@ -1148,7 +1148,7 @@ describe('The Vanilli server', function () {
                         criteria: {
                             url: dummyUrl
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus,
                             wait: 1000
                         }
@@ -1182,7 +1182,7 @@ describe('The Vanilli server', function () {
                             method: 'POST',
                             url: "my/url"
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         },
                         capture: captureId
@@ -1217,7 +1217,7 @@ describe('The Vanilli server', function () {
                             method: 'POST',
                             url: "my/url"
                         },
-                        respondWith: {
+                        response: {
                             status: dummyStatus
                         },
                         capture: captureId
