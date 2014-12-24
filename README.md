@@ -6,6 +6,7 @@
 
 A RESTful server running on Nodejs for storing and matching stubs/expectations from a test run.
 
+
 ## Usage
 Whilst vanilli exposes a RESTful API (which is documented below), it'll probably make more sense to talk to vanilli from its
 javascript client library cousin https://github.com/kelveden/milli. You can also hook starting/shutting vanilli down into your grunt build
