@@ -1,10 +1,14 @@
 /* jshint expr:true */
-var vanilliLogLevel = "fatal",
-    vanilli = require('../../lib/vanilli.js'),
+var logLevel = "fatal",
+    server = require('../../lib/vanilli/server.js'),
     chai = require('chai'),
     expect = require('chai').expect,
     portfinder = require('portfinder'),
-    allowedHeaderForCors = "My-Custom-Header";
+    log = require('bunyan').createLogger({
+        name: "vanilli-test",
+        level: logLevel
+    }),
+    stubRegistry = require('../../lib/vanilli/stub-registry');
 
 require("better-stack-traces").install({
     before: 0,
@@ -41,10 +45,10 @@ describe('The Vanilli server', function () {
     });
 
     beforeEach(function () {
-        vanilliServer = vanilli.start({
+        vanilliServer = server.start({
             port: vanilliPort,
-            logLevel: vanilliLogLevel,
-            allowedHeadersForCors: [ allowedHeaderForCors ]
+            registry: stubRegistry.create({ log: log }),
+            log: log
         });
         vanilliClient = chai.request(vanilliServer.url);
     });
@@ -91,28 +95,6 @@ describe('The Vanilli server', function () {
                         expect(res.header['access-control-allow-headers']).to.exist;
                         done();
                     });
-            });
-    });
-
-    it('MUST include headers specified in configuration in CORS Access-Control-Allow-Headers header', function (done) {
-        var stubUrl = "/my/url";
-
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send({
-                    criteria: {
-                        url: stubUrl
-                    },
-                    response: {
-                        status: dummyStatus
-                    }
-                });
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-                expect(res.header['access-control-allow-headers']).to.contain(allowedHeaderForCors);
-
-                done();
             });
     });
 
@@ -198,10 +180,10 @@ describe('The Vanilli server', function () {
 
         beforeEach(function (done) {
             getAvailablePort(function (port) {
-                vanilliServer = vanilli.start({
+                vanilliServer = server.start({
                     port: port,
-                    logLevel: vanilliLogLevel,
-                    allowedHeadersForCors: [ allowedHeaderForCors ],
+                    log: log,
+                    registry: stubRegistry.create({ log: log }),
                     static: {
                         root: "test/e2e/static",
                         include: [ "**/*" ],

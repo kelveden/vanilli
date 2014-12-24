@@ -30,8 +30,6 @@ Vanilli sends out CORS headers in all responses:
     Access-Control-Allow-Headers: <See lib/cors.js for a list of the supported headers>
     Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
 
-Extra headers for the `Access-Control-Allow-Headers` header can be added via `config.allowedHeadersForCors` which is a JSON array of HTTP headers.
-
 *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
 
 ## Configuration

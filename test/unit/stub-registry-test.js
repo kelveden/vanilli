@@ -2,10 +2,12 @@
 var vanilliLogLevel = "fatal",
     expect = require('chai').expect,
     _ = require('lodash'),
-    log = require('bunyan').createLogger({
-        name: "vanilli-test",
-        level: vanilliLogLevel
-    });
+    config = {
+        log: require('bunyan').createLogger({
+            name: "vanilli-test",
+            level: vanilliLogLevel
+        })
+    };
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
@@ -32,7 +34,7 @@ describe('The stub registry', function () {
     }
 
     it('can be instantiated', function () {
-        var registry = require('../../lib/stub-registry.js').create(log);
+        var registry = require('../../lib/vanilli/stub-registry.js').create(config);
 
         expect(registry).to.exist;
     });
@@ -41,7 +43,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('can be used to add a stub', function () {
@@ -189,7 +191,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('can be used to get a stub by id', function () {
@@ -209,7 +211,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('returns null if no stub can be matched', function () {
@@ -758,7 +760,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('returns a list of errors if an expectation has not been matched against', function () {
@@ -853,7 +855,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('can clear down all stubs at once', function () {
@@ -877,7 +879,7 @@ describe('The stub registry', function () {
         var registry;
 
         beforeEach(function () {
-            registry = require('../../lib/stub-registry.js').create(log);
+            registry = require('../../lib/vanilli/stub-registry.js').create(config);
         });
 
         it('can capture a request', function () {
