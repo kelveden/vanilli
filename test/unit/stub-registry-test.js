@@ -151,40 +151,6 @@ describe('The stub registry', function () {
             expect(id2).to.exist;
             expect(id1).to.not.equal(id2);
         });
-
-        it('prefers the Content-Type header criteria over the contentType field', function () {
-            var stub = registry.addStub({
-                criteria: {
-                    url: dummyUrl,
-                    body: { some: "data" },
-                    contentType: 'another/contenttype',
-                    headers: {
-                        'Content-Type': 'my/contenttype'
-                    }
-                },
-                response: dummyResponse
-            });
-
-            expect(stub.criteria.contentType).to.equal('my/contenttype');
-        });
-
-        it('prefers the Content-Type response header over the contentType field', function () {
-            var stub = registry.addStub({
-                criteria: {
-                    url: dummyUrl
-                },
-                response: {
-                    status: dummyStatus,
-                    body: { some: "data" },
-                    contentType: 'another/contenttype',
-                    headers: {
-                        'Content-Type': 'my/contenttype'
-                    }
-                }
-            });
-
-            expect(stub.response.contentType).to.equal('my/contenttype');
-        });
     });
 
     describe('getter', function () {
@@ -894,7 +860,7 @@ describe('The stub registry', function () {
                         url: "/my/url"
                     },
                     response: dummyResponse,
-                    capture: "mycapture"
+                    captureId: "mycapture"
                 });
 
             // When

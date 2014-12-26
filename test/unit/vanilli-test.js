@@ -1,6 +1,6 @@
 var expect = require('chai').expect,
     sinon = require('sinon'),
-    vanilli = require('../../lib/vanilli').init();
+    vanilli = require('../../lib/vanilli').init({ logLevel: "error" });
 
 describe("vanilli", function () {
 
@@ -272,9 +272,8 @@ describe("vanilli", function () {
 
         it("adds specified response wait to stub", function () {
             var stub = vanilli.onGet("/some/url")
-                .respondWith(123, {
-                    wait: 2000
-                });
+                .respondWith(123)
+                .wait(2000);
 
             expect(stub.response.wait).to.equal(2000);
         });
@@ -293,6 +292,14 @@ describe("vanilli", function () {
                 .respondWith(123);
 
             expect(stub.times).to.equal(1);
+        });
+
+        it("assigns specified capture id to stub", function () {
+            var stub = vanilli.onGet("/some/url")
+                .respondWith(123)
+                .capture("mycapture");
+
+            expect(stub.captureId).to.equal("mycapture");
         });
     });
 
@@ -325,6 +332,13 @@ describe("vanilli", function () {
                 vanilli.onGet("/another/url").respondWith(456));
 
             vanilli.clear();
+        });
+
+        it("cannot be verified", function () {
+            vanilli.stub(
+                vanilli.onGet("/some/url").respondWith(123));
+
+            expect(vanilli.verify()).to.have.length(0);
         });
     });
 
