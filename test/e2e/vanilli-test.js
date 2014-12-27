@@ -41,16 +41,6 @@ describe('Vanilli', function () {
         vanilli.clear();
     });
 
-    it('listens on the configured port', function (done) {
-        client.get('/_vanilli/ping')
-            .end(function (err, res) {
-                expect(res).to.be.json;
-                expect(res).to.have.status(200);
-                expect(res.body.ping).to.equal("pong");
-                done();
-            });
-    });
-
     it('serves up the stub matching the incoming request', function (done) {
         vanilli.stub(
             vanilli.onGet("/another/url").respondWith(123),
