@@ -1,7 +1,7 @@
 # vanilli
 [![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
 
-Manages a RESTful server running on Nodejs for storing, matching and verifying stubs/expectations from a test run.
+Nodejs library that allows managing of a RESTful server for storing, matching and verifying stubs/expectations from a test suite.
 
 ## Installation
 
