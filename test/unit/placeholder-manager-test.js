@@ -5,7 +5,7 @@ describe('Placeholder manager', function () {
 
     it("can be instantiated", function () {
 
-        var placeholderManager = require('../../lib/placeholder-manager.js');
+        var placeholderManager = require('../../lib/vanilli/placeholder-manager.js');
 
         expect(placeholderManager).to.exist;
     });
@@ -15,7 +15,7 @@ describe('Placeholder manager', function () {
         var placeholderManager;
 
         beforeEach(function () {
-            placeholderManager = require('../../lib/placeholder-manager.js');
+            placeholderManager = require('../../lib/vanilli/placeholder-manager.js');
         });
 
         it("will substitute one placeholder", function () {

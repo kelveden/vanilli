@@ -1,28 +1,71 @@
 # vanilli
-
 [![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
 
-> *IMPORTANT*: Before considering using vanilli or milli there is a reliance on CORS that may be a gotcha for you. See the section on CORS below for more info.
+Manages a RESTful server running on Nodejs for storing, matching and verifying stubs/expectations from a test run.
 
-A RESTful server running on Nodejs for storing and matching stubs/expectations from a test run.
+## Installation
 
-## Usage
-Whilst vanilli exposes a RESTful API (which is documented below), it'll probably make more sense to talk to vanilli from its
-javascript client library cousin https://github.com/kelveden/milli. You can also hook starting/shutting vanilli down into your grunt build
-with https://github.com/kelveden/grunt-vanilli.
-
-See the milli tests and its Gruntfile.js for an example of how milli, vanilli and grunt-vanilli fit together.
-
-For a simple start script for vanilli see `bin/vanilli`.
+    npm install vanilli
 
 ## How It Works
-Vanilli is designed to act as a "fake" version of the REST service(s) that your SUT (System Under Test) depends on. It sits running on a port (say 14000).
-Your SUT will be running on another port (say 8080). Most importantly, you will have configured your SUT so that HTTP calls to REST services go out to port 14000 NOT 8080.
+Vanilli is designed to act as a "fake" version of the REST services that your SUT (System Under Test) depends on. It sits running
+on a port you specify, waiting to serve up responses that you specify via adding stubs. Stubs are added and verified via the
+javascript API.
 
-Now, all you need to do is set up stubs in vanilli (i.e. with milli) so that appropriate responses exist when making calls to the fake REST services.
+Your SUT is then configured to call vanilli instead of the REST services it usually uses.
 
-### CORS
-Vanilli runs on a different port to your SUT. If your SUT's calls to the REST services it depends on are all server-side then vanilli should just work. However, if you have client-side calls then you'll need to take advantage of the vanilli support for [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
+Note: If your web app has client-side code that makes XHR calls to REST services then you will need to consider the section on 'CORS' below.
+
+## Usage
+Typical usage:
+
+    var vanilli = require('vanilli').init();
+
+    describe('My SUT', function () {
+        before(function () {
+            vanilli.listen(port); // Start the vanilli REST server
+        });
+
+        after(function () {
+            vanilli.stop(); // Shutdown vanilli REST server
+        });
+
+        afterEach(function () {
+            vanilli.verify(); // Verify all expectations have been met
+            vanilli.clear(); // Clear down stubs from vanilli ready for next test
+        });
+
+        it('does something', function (done) {
+            vanilli.stub(
+                vanilli.onGet("/this/url/MIGHT/happen").respondWith(200)
+            );
+
+            vanilli.expect(
+                vanilli.onGet("/this/url/MUST/happen").respondWith(200)
+            );
+
+            // Manipulate SUT to required state
+
+            // Make assertions
+
+            // Note that the vanilli expectation above will be verified by the vanilli.verify() in 'afterEach'.
+        });
+    });
+
+## Configuration
+Vanilli configuration is handled via the `init()` function. See the API documentation below for more information.
+
+## Lazy Matching
+Vanilli's matching logic is lazy - i.e. a as long as ALL the criteria on a given stub match an incoming
+request vanilli does not care about any further details of that request. So, for example, if one specifies
+a stub that matches on a specific query parameter then the matching logic ONLY cares about that query
+parameter - any other query parameters are considered irrelevant.
+
+This approach means more succinct stubs and less matching criteria irrelevant to the test at hand.
+
+## CORS
+Vanilli will usually be running on a different port to your SUT. So, if your SUT's client-side code makes calls calls to REST services
+then you'll need to take advantage of the vanilli support for [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
 
 Vanilli sends out CORS headers in all responses:
 
@@ -30,121 +73,170 @@ Vanilli sends out CORS headers in all responses:
     Access-Control-Allow-Headers: <See lib/cors.js for a list of the supported headers>
     Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
 
-Extra headers for the `Access-Control-Allow-Headers` header can be added via `config.allowedHeadersForCors` which is a JSON array of HTTP headers.
-
 *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
-
-## Configuration
-Vanilli is configured as it started via the `start(config)` function.
-
-    {
-        port: <port to run Vanilli on>,
-        allowedHeadersForCors: <array containing extra headers to add to the Access-Control-Allow-Headers CORS header in vanilli responses>,
-        logLevel: <log level for vanilli; defaults to 'error'>,
-        staticRoot: <path to folder containing static content that will be used in preference to trying to match a request against a stub>
-    }
+*NOTE*: See the section on 'Static Content' below for a possible workaround for avoiding CORS.
 
 ## JSONP
-Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter is found on the request that
-the stub response is being produced for. This is not explicitly handled in vanilli but by its underlying [restify](http://mcavage.me/node-restify/) server instead.
+Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter
+is found on the request that the stub response is being produced for. This is not explicitly handled in vanilli but by its
+underlying [restify](http://mcavage.me/node-restify/) server instead.
 
 ## Diagnostics
-Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause vanilli
-to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against incoming requests.
+Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause
+vanilli to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against
+incoming requests.
 
 See the [bunyan](https://github.com/trentm/node-bunyan) project itself for more info on logging and log levels.
 
-## REST API
-### GET _vanilli/ping
-Produces: _application/json_
+## Stubs vs Expectations
+For vanilli, an "expectation" is simply a specialized stub. In short: a stub MIGHT be matched; an
+expectation MUST be matched.
 
-Simple ping/pong for the server.
+A stub...
+ * CAN be matched UP TO the specified number of times (1 if not explicitly specified).
+ * WILL cause an error if matched too many times.
+ * WILL NOT cause an error if matched too few times.
 
-### POST _vanilli/stubs
-Consumes: _application/json_
+An expectation...
+ * MUST be matched the specified number of times (1 if not explicitly specified).
+ * WILL cause an error if matched too many times.
+ * WILL cause an error if matched too few times.
 
-Accepts one or more stubs/expectations for storage.
-The body should be a single stub definition OR a JSON array containing one or more stub definitions. A stub definition takes the form
-given below. (Note that all fields are optional unless otherwise specified):
+So, if you want to assert on the actual calls that your SUT is using use an expectation;
+otherwise use a stub.
 
-    {
-        "criteria": {
-            "method": _HTTP method to match against (case-insensitive) - defaults to 'GET' if not specified_,
-            "url": _url to match against - can be a string or regex_, -- MANDATORY
-            "body": _the request entity body to match against_,
-            "contentType": _the request entity content type to match against; i.e. Content-Type header_,
-            "query": {
-                "_param1_": _expected value; literal or regex_,
-                ...
-            },
-            "headers": {
-                "_header1_": _expected value; literal or regex_,
-                ...
-            }
-        },
-        "response": {
-            "status": _the HTTP status code to respond with_, -- MANDATORY
-            "body": _the response entity body_,
-            "contentType": _the HTTP Content-Type of the response entity_,
-            "headers": {
-                "_header1_": _value1_,
-                ...
-            },
-            "wait": _integer value representing the number of milliseconds that vanilli will wait before sending the response to the stub_
-        },
-        "expect": true,
-        "times": _integer value for use with an expectation indicating how many times to expect a match_
-    }
+*REMEMBER*: The more vanilli expectations you add to your tests the more brittle they will get:
+consider using stubs as your first choice.
 
-NOTE: to match against a regex instead of a literal (i.e. for matching against urls, headers or the body) one simply wraps the literal in a "regex" field. E.g.:
+## Static Content
+To serve up the stubbed responses vanilli is, at its core, an HTTP server. This means that it could, potentially,
+serve up content other than stubs. This opens up the possibility of vanilli acting as your web app's
+HTTP server - thus removing any CORS considerations.
+
+So, to this end, the `static` config option was created. It acts like a "pass through" filter - if
+an incoming request matches the static filter then the static content will be served rather than
+attempting to match against a stub. The option takes the form:
 
     {
-        "criteria": {
-            ...
-            "url": {
-                "regex": "^.+$"
-            }
+        static: {
+            root: "sut/static/root",
+            include: [ glob1, glob2, ... , globX ],
+            exclude: [ globA, globB, ... , globZ ]
         }
     }
 
-### DEL _vanilli/stubs
-Clears down all stubs.
+You can see an example in (test/e2e/vanilli-test.js)
 
-### GET _vanilli/stubs/verification
-Produces: _application/json_
+## API
+*NOTE*: You can find examples of the API calls in (test/e2e/vanilli-test.js) and (test/unit/vanilli-test.js).
 
-Checks that all stubs marked as expectations have been used in responses the expected number of times. All errors are included as a
-JSON array in the response body. An empty array indicates no errors.
+### init
+    var vanilli = require('vanilli').init([config]);
 
-### GET _vanilli/captures/:captureId
-Produces: _application/json_
+Creates a new vanilli instance. Optional configuration values can be specified. All options are
+given below with their default values:
 
-Retrieves details of the body caught for the specified capture id.
+    {
+        logLevel: "error", // See 'Diagnostics' section above
+        static: undefined // See 'Static Content' section above
+    }
 
-## Installation
+### vanilli.stub
+    vanilli.stub(stub1, stub2, ... , stubX);
 
-Installation is done via npm:
+Registers one or more stubs.
 
-``` bash
-$ npm install vanilli
-```
+### vanilli.expect
+    vanilli.expect(stub1, stub2, ... , stubX);
 
-Vanilli is designed to be kicked off as a step in your grunt build; so the typical usage will actually be via a plugin; e.g.
-https://github.com/kelveden/grunt-vanilli.
+Registers one or more stubs as expectations. (See 'Stubs vs Expectations' section below.)
 
-However, if you do want to start it up manually you can find an example startup script in the bin folder of the source. I recommend
-you pipe the sysout through bunyan to get your log output nicely formatted and colourised:
+### vanilli.onGet
+    vanilli.onGet(url[, options]);
 
-``` bash
-$ bin/vanilli.sh | bunyan
-```
+Returns a new stub that will match against an incoming GET request with a relative URL matching
+that specified. Further matching criteria can be specified via the options object. The following
+snippet illustrates all available options:
 
-## Releasing
-Releasing new versions of vanilli consists of two steps:
+    {
+        contentType: <string or RegExp>,
+        body: <string, object or RegExp>,
+        query: {
+            param1: <string or RegExp>,
+            ...
+            paramX: <string or RegExp>
+        },
+        headers: {
+            header1: <string or RegExp>,
+            ...
+            headerX: <string or RegExp>
+        },
+    }
 
- 1. Bumping the version
-   * Bump build version: `gulp bump`
-   * Bump minor version: `gulp bump --type minor`
-   * Bump major version: `gulp bump --type major`
- 2. Publishing to npm: `npm publish`
+*NOTE*: If a `body` is specified then a `contentType` MUST be specified.
 
+### vanilli.onPut
+As for `vanilli.onGet` except that the HTTP method for the stub is PUT.
+
+### vanilli.onPost
+As for `vanilli.onGet` except that the HTTP method for the stub is POST.
+
+### vanilli.onDelete
+As for `vanilli.onGet` except that the HTTP method for the stub is DELETE.
+
+### vanilli.listen
+    vanilli.listen(port);
+
+Starts the vanilli REST server listening on the specified port.
+
+### vanilli.stop
+    vanilli.stop();
+
+Stops the vanilli REST server.
+
+### vanilli.verify
+    vanilli.verify();
+
+Verifies that the expectations currently registered with vanilli have been met. If verification fails
+a single error is thrown detailing all unmet expectations.
+
+### vanilli.clear
+    vanilli.clear();
+
+Clears vanilli down of all stubs and expectations.
+
+### vanilli.getCapture
+    var captureDetails = vanilli.getCapture(captureId);
+
+Gets details of the request indicated by the specified captureId. (See `stub.capture`.)
+
+### stub.capture
+    stub.capture(captureId);
+
+Indicates that vanilli should store the details of the request that is eventually matched against
+the stub. The specified captureId can then be used as a handle to `vanilli.getCapture` to pull
+those details back for asserting on.
+
+### stub.wait
+    stub.wait(milliseconds);
+
+Indicates that when vanilli matches this stub against an incoming request it should wait the specified
+number of milliseconds before responding with the stubbed response.
+
+### stub.respondWith
+    stub.respondWith(status[, options]);
+
+Adds details of the response to the stub. At minimum, a status code can be specified; however, more
+details for the response can be specified via the options. The following snippet illustrates all options.
+
+    {
+        contentType: <string>,
+        body: <string or object>,
+        headers: {
+            header1: <string>,
+            ...
+            headerX: <string>
+        }
+    }
+
+*NOTE*: If a `body` is specified then a `contentType` MUST be specified.

@@ -1,1253 +1,323 @@
 /* jshint expr:true */
-var vanilliLogLevel = "fatal",
-    vanilli = require('../../lib/vanilli.js'),
+var vanilli = require('../../lib/vanilli').init({
+        logLevel: "error",
+        static: {
+            root: "test/e2e/static",
+            include: [ "**/*.html" ],
+            exclude: [ "**/*.xxx" ]
+        }
+    }),
     chai = require('chai'),
     expect = require('chai').expect,
-    portfinder = require('portfinder'),
-    allowedHeaderForCors = "My-Custom-Header";
-
-require("better-stack-traces").install({
-    before: 0,
-    after: 0,
-    collapseLibraries: true
-});
+    portfinder = require('portfinder');
 
 portfinder.basePort = 14000;
 
 chai.config.includeStack = true;
 chai.use(require('chai-http'));
 
-describe('The Vanilli server', function () {
-    var vanilliPort,
-        dummyUrl = "/some/url",
-        dummyStatus = 200,
-        vanilliClient, vanilliServer;
-
-    function getAvailablePort(success, failure) {
-        portfinder.getPort(function (err, port) {
-            if (err) {
-                failure(err);
-            } else {
-                success(port);
-            }
-        });
-    }
+describe('Vanilli', function () {
+    var client,
+        dummyStatus = 666,
+        dummyUrl = "/some/url";
 
     before(function (done) {
-        getAvailablePort(function (port) {
-            vanilliPort = port;
-            done();
-        }, done);
+        portfinder.getPort(function (err, port) {
+            if (err) {
+                done(err);
+            } else {
+                vanilli.listen(port);
+                client = chai.request("http://localhost:" + port);
+                done();
+            }
+        });
     });
 
-    beforeEach(function () {
-        vanilliServer = vanilli.start({
-            port: vanilliPort,
-            logLevel: vanilliLogLevel,
-            allowedHeadersForCors: [ allowedHeaderForCors ]
-        });
-        vanilliClient = chai.request(vanilliServer.url);
+    after(function () {
+        vanilli.stop();
     });
 
     afterEach(function () {
-        vanilliServer.close();
+        vanilli.clear();
     });
 
-    it('MUST be pingable', function (done) {
-        vanilliClient.get('/_vanilli/ping')
-            .res(function (res) {
-                expect(res).to.be.json;
-                expect(res.status).to.equal(200);
-                expect(res.body.ping).to.equal("pong");
+    it('serves up the stub matching the incoming request', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/another/url").respondWith(123),
+            vanilli.onGet("/my/url").respondWith(234),
+            vanilli.onGet("/yet/another/url").respondWith(345)
+        );
+
+        client.get("/my/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(234);
                 done();
             });
     });
 
-    it('MUST include CORS headers in responses', function (done) {
-        var stubUrl = "/my/url";
-
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send({
-                    criteria: {
-                        url: stubUrl
-                    },
-                    response: {
-                        status: dummyStatus
-                    }
-                });
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-                expect(res.header['access-control-allow-origin']).to.equal("*");
-                expect(res.header['access-control-allow-methods']).to.deep.equal("OPTIONS, DELETE, POST");
-                expect(res.header['access-control-allow-headers']).to.exist;
-
-                vanilliClient.options(stubUrl)
-                    .res(function (res) {
-                        expect(res.status).to.be.equal(200);
-                        expect(res.header['access-control-allow-origin']).to.equal("*");
-                        expect(res.header['access-control-allow-methods']).to.deep.equal("GET, DELETE, PUT, POST, OPTIONS");
-                        expect(res.header['access-control-allow-headers']).to.exist;
-                        done();
-                    });
-            });
-    });
-
-    it('MUST include headers specified in configuration in CORS Access-Control-Allow-Headers header', function (done) {
-        var stubUrl = "/my/url";
-
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send({
-                    criteria: {
-                        url: stubUrl
-                    },
-                    response: {
-                        status: dummyStatus
-                    }
-                });
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-                expect(res.header['access-control-allow-headers']).to.contain(allowedHeaderForCors);
-
-                done();
-            });
-    });
-
-    it('MUST allow clearing down all stubs', function (done) {
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send({
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    response: {
-                        status: dummyStatus
-                    }
-                });
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-
-                vanilliClient.get(dummyUrl)
-                    .res(function (res) {
-                        expect(res.status).to.be.equal(dummyStatus);
-
-                        vanilliClient.del('/_vanilli/stubs')
-                            .res(function (res) {
-                                expect(res.status).to.be.equal(200);
-
-                                vanilliClient.get(dummyUrl)
-                                    .res(function (res) {
-                                        expect(res.status).to.be.equal(404);
-                                        done();
-                                    });
-                            });
-                    });
-            });
-    });
-
-    it('MUST allow adding of single stubs at a time', function (done) {
-        var dummyStub = {
-            criteria: {
-                url: dummyUrl
-            },
-            response: {
-                status: dummyStatus
-            }
-        };
-
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send(dummyStub);
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-                expect(res.body).to.have.length(1);
-                done();
-            });
-    });
-
-    it('MUST allow adding multiple stubs at a time', function (done) {
-        var dummyStub = {
-            criteria: {
-                url: dummyUrl
-            },
-            response: {
-                status: dummyStatus
-            }
-        };
-
-        vanilliClient.post('/_vanilli/stubs')
-            .req(function (req) {
-                req.send([ dummyStub, dummyStub ]);
-            })
-            .res(function (res) {
-                expect(res.status).to.be.equal(200);
-                expect(res.body).to.have.length(2);
-                done();
-            });
-    });
-
-    describe("static content", function () {
-        var vanilliServer,
-            vanilliClient,
-            stubStatus = 234;
-
-        beforeEach(function (done) {
-            getAvailablePort(function (port) {
-                vanilliServer = vanilli.start({
-                    port: port,
-                    logLevel: vanilliLogLevel,
-                    allowedHeadersForCors: [ allowedHeaderForCors ],
-                    static: {
-                        root: "test/e2e/static",
-                        include: [ "**/*" ],
-                        exclude: [ "**/*.xxx" ]
-                    }
-                });
-                vanilliClient = chai.request(vanilliServer.url);
-                done();
-            }, done);
-        });
-
-        afterEach(function () {
-            vanilliServer.close();
-        });
-
-        function dummyStub(url, status, done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: { url: url },
-                        response: { status: status }
-                    });
-                })
-                .res(done);
-        }
-
-        it('MUST be served if request meets criteria of static filter', function (done) {
-            vanilliClient.get('/sub/something.html')
-                .res(function (res) {
-                    expect(res.status).to.equal(200);
-                    done();
-                });
-        });
-
-        it('MUST serve up stub if request meets include criteria but not excludes', function (done) {
-            dummyStub('/sub/exists.xxx', stubStatus, function () {
-                vanilliClient.get('/sub/exists.xxx')
-                    .res(function (res) {
-                        expect(res.status).to.equal(stubStatus);
-                        done();
-                    });
-            });
-        });
-
-        it('MUST serve up 404 if request meets criteria of static filter but no matching static content exists', function (done) {
-            dummyStub('/sub/doesnotexist.jpg', stubStatus, function () {
-                vanilliClient.get('/sub/doesnotexist.jpg')
-                    .res(function (res) {
-                        expect(res.status).to.equal(404);
-                        done();
-                    });
-            });
-        });
-    });
-
-    describe('stubs', function () {
-        it('MUST have a url', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.set('Content-Type', 'application/json');
-                    req.send({
-                        criteria: {
-                        },
-                        response: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(400);
-                    expect(res).to.be.json;
-                    expect(res.body).to.match(/url/);
-                    done();
-                });
-        });
-
-        it('CAN have no explicit method', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.set('Content-Type', 'application/json');
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    done();
-                });
-        });
-
-        it('MUST have a contentType if a response body is specified', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: 'my/url'
-                        },
-                        response: {
-                            status: 200,
-                            body: {
-                                something: "else"
-                            }
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(400);
-                    expect(res).to.be.json;
-                    expect(res.body).to.match(/contentType/);
-                    done();
-                });
-        });
-
-        it('CAN have no response content type if there is no response body', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: 'my/url'
-                        },
-                        response: {
-                            status: 200
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    done();
-                });
-        });
-
-        it('MUST match against request with a matching url', function (done) {
-            var expectedStatus = 234,
-                url = "/my/url";
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: url
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(url)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
-                });
-        });
-
-        it('MUST match against request with the same method', function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            method: 'DELETE'
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.del(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
-                });
-        });
-
-        it("MUST match against request with headers that are included in the stub", function (done) {
-
-            var expectedHeaderValue = "myvalue",
-                expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            headers: {
-                                "My-Header": expectedHeaderValue
-                            }
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .req(function (req) {
-                            req.set("My-Header", expectedHeaderValue);
-                        })
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
-                });
-        });
-
-        it("MUST match against request with the same request body", function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            method: "post",
-                            url: dummyUrl,
-                            body: { myfield: "some data" },
-                            contentType: 'application/json'
-                        },
-                        response: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.post(dummyUrl)
-                        .req(function (req) {
-                            req.set('Content-Type', 'application/json');
-                            req.send({ "myfield": "some data" });
-                        })
-                        .res(function (res) {
-                            expect(res.status).to.equal(dummyStatus);
-                            done();
-                        });
-                });
-        });
-
-        it("MUST NOT match against request with no response body if the stub matches against body", function (done) {
-            var expectedbody = {
-                myfield: "myvalue"
-            };
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            body: expectedbody,
-                            contentType: 'application/json'
-                        },
-                        response: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.equal(404);
-                            done();
-                        });
-                });
-        });
-
-        it("MUST match any number times", function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-
-                            vanilliClient.get(dummyUrl)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(expectedStatus);
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it('MUST be matched against multiple identical requests in the order the stubs were added', function (done) {
-            var dummyStub1 = {
-                criteria: {
-                    url: dummyUrl
-                },
-                response: {
-                    status: 1
-                },
-                times: 1
-            }, dummyStub2 = {
-                criteria: {
-                    url: dummyUrl
-                },
-                response: {
-                    status: 2
+    it('adds headers from matching stub to response', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus, {
+                headers: {
+                    myheader1: "value1",
+                    myheader2: "value2"
                 }
-            };
+            })
+        );
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send([ dummyStub1, dummyStub2 ]);
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(1);
-
-                            vanilliClient.get(dummyUrl)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(2);
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it("MUST match against request with the same query params", function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            query: {
-                                param1: "value1"
-                            }
-                        },
-                        response: {
-                            status: dummyStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl + "?param1=value1")
-                        .res(function (res) {
-                            expect(res.status).to.equal(dummyStatus);
-                            done();
-                        });
-                });
-        });
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.header("myheader1", "value1");
+                expect(res).to.have.header("myheader2", "value2");
+                done();
+            });
     });
 
-    describe('expectations', function () {
-        it("MUST match any number times", function (done) {
-            var expectedStatus = 234;
+    it('adds body from matching stub to response', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus, {
+                body: {
+                    some: "content"
+                },
+                contentType: "application/json"
+            })
+        );
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus
-                        },
-                        times: 1,
-                        expect: true
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-
-                            vanilliClient.get(dummyUrl)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(expectedStatus);
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it("MUST be considered verified if they have been matched the expected number of times", function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus
-                        },
-                        times: 1,
-                        expect: true
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-
-                            vanilliClient.get('/_vanilli/stubs/verification')
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(200);
-                                    expect(res.body.errors).to.be.empty;
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it("MUST NOT be considered verified if they have been not matched the expected number of times", function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus
-                        },
-                        times: 2,
-                        expect: true
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-
-                            vanilliClient.get('/_vanilli/stubs/verification')
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(200);
-                                    expect(res.body.errors).to.have.length(1);
-                                    done();
-                                });
-                        });
-                });
-        });
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res.body).to.deep.equal({ some: "content" });
+                expect(res).to.have.header('content-type', "application/json");
+                done();
+            });
     });
 
-    describe('requests', function () {
-        it('MUST be honoured for GET request if it matches a stub', function (done) {
-            var expectedStatus = 234;
+    it('overrides explicit Content-Type header with content type of body', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus, {
+                body: {
+                    some: "content"
+                },
+                contentType: "application/json",
+                headers: {
+                    "Content-Type": "something/else"
+                }
+            })
+        );
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            method: 'GET'
-                        },
-                        response: {
-                            status: expectedStatus,
-                            body: { some: "data" },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            expect(res.body.some).to.be.equal("data");
-                            done();
-                        });
-                });
-        });
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.header('content-type', "application/json");
+                done();
+            });
+    });
 
-        it('MUST be honoured for DELETE request if it matches a stub', function (done) {
-            var expectedStatus = 234;
+    it('serves up 500 if no matching stub is found', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/my/url").respondWith(dummyStatus)
+        );
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            method: 'DELETE'
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.del(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
-                });
-        });
+        client.get("/another/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                done();
+            });
+    });
 
-        it('MUST be honoured for POST request if it matches a stub', function (done) {
-            var expectedStatus = 234;
+    it('can be cleared down of stubs', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(123)
+        );
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            method: 'POST'
-                        },
-                        response: {
-                            status: expectedStatus,
-                            body: { some: "data" },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.post(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            expect(res.body.some).to.be.equal("data");
-                            done();
-                        });
-                });
-        });
+        vanilli.clear();
 
-        it('MUST be honoured for PUT request if it matches a stub', function (done) {
-            var expectedStatus = 234;
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.status(404);
+                done();
+            });
+    });
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl,
-                            method: 'PUT'
-                        },
-                        response: {
-                            status: expectedStatus,
-                            body: { some: "data" },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.put(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            expect(res.body.some).to.be.equal("data");
-                            done();
-                        });
-                });
-        });
+    it('automatically adds CORS headers in stub responses', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
+        );
 
-        it('MUST be honoured for request if it matches a stub which has no explicit method', function (done) {
-            var expectedStatus = 234;
+        client.options(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.header('access-control-allow-origin', "*");
+                expect(res).to.have.header('access-control-allow-methods', "GET, DELETE, PUT, POST, OPTIONS");
+                expect(res).to.have.header('access-control-allow-headers');
+                done();
+            });
+    });
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus,
-                            body: { some: "data" },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.put(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            expect(res.body.some).to.be.equal("data");
-                            done();
-                        });
-                });
-        });
+    it("only responds after waiting the length of time specified by the stub", function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
+                .wait(200)
+        );
 
-        it('MUST be honoured with a 404 if no stub matches', function (done) {
-            vanilliClient.get(dummyUrl)
-                .res(function (res) {
-                    expect(res.status).to.be.equal(404);
-                    expect(res).to.be.json;
-                    expect(res.body.vanilli).to.be.equal('Stub not found.');
+        var startResponse = (new Date()).getTime();
+
+        client.get(dummyUrl)
+            .buffer()
+            .end(function () {
+                var endResponse = (new Date()).getTime();
+                expect(endResponse - startResponse).to.be.greaterThan(200);
+                done();
+            });
+    });
+
+    it('uses correct content type for response when content type not supported by a registered restify formatter', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus, {
+                body: "<html><body>some page</body></html>",
+                contentType: "text/html"
+            })
+        );
+
+        client.get(dummyUrl)
+            .buffer()
+            .end(function (err, res) {
+                expect(res.text).to.equal('<html><body>some page</body></html>');
+                expect(res.header['content-type']).to.equal("text/html");
+                done();
+            });
+    });
+
+    describe('static content', function () {
+        it('is served if request meets criteria of static filter', function (done) {
+            client.get('/sub/something.html')
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
                     done();
                 });
         });
 
-        it('MUST be honoured by the first stub that matches the request', function (done) {
-            var expectedStatus = 234,
-                anotherStatus = 123;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send([
-                        {
-                            criteria: {
-                                url: dummyUrl,
-                                method: 'GET'
-                            },
-                            response: {
-                                status: expectedStatus
-                            }
-                        },
-                        {
-                            criteria: {
-                                url: dummyUrl,
-                                method: 'GET'
-                            },
-                            response: {
-                                status: anotherStatus
-                            }
-                        }
-                    ]);
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
+        it('is not served if request meets include criteria but not excludes', function (done) {
+            client.get('/sub/exists.xxx')
+                .end(function (err, res) {
+                    expect(res).to.have.status(404);
+                    done();
                 });
         });
 
-        it('MUST be honoured by the highest (i.e. lowest number) priority stub that matches the request', function (done) {
-            var expectedStatus = 234,
-                anotherStatus = 123;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send([
-                        {
-                            criteria: {
-                                url: dummyUrl,
-                                method: 'GET'
-                            },
-                            priority: 1,
-                            response: {
-                                status: anotherStatus
-                            }
-                        },
-                        {
-                            criteria: {
-                                url: dummyUrl,
-                                method: 'GET'
-                            },
-                            priority: 0,
-                            response: {
-                                status: expectedStatus
-                            }
-                        }
-                    ]);
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
-                });
-        });
-
-        it('MUST NOT be URL-decoded before matching against stubs', function (done) {
-            var expectedStatus = 234,
-                urlPath = "/some/url";
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: urlPath,
-                            query: {
-                                param1: encodeURIComponent("&abc&")
-                            },
-                            method: 'GET'
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(urlPath + "?param1=" + encodeURIComponent("&abc&"))
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
+        it('serves up 404 if request meets criteria of static filter but no matching static content exists', function (done) {
+            client.get('/sub/doesnotexist.html')
+                .end(function (err, res) {
+                    expect(res).to.have.status(404);
+                    done();
                 });
         });
     });
 
-    describe('responses', function () {
-        it('MUST have the status specified in the matching stub', function (done) {
-            var expectedStatus = 234;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: expectedStatus
-                        }
-                    });
+    describe('JSONP', function () {
+        it('is used to wrap response non-json entity as string passed to specified callback', function (done) {
+            vanilli.stub(
+                vanilli.onGet("/my/url").respondWith(dummyStatus, {
+                    body: "somecontent",
+                    contentType: "text/plain"
                 })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.status).to.be.equal(expectedStatus);
-                            done();
-                        });
+            );
+
+            client.get("/my/url?callback=mycallback")
+                .buffer()
+                .end(function (err, res) {
+                    expect(res).to.have.header('content-type', "application/javascript");
+                    expect(res.text).to.equal("mycallback(\"somecontent\");");
+                    done();
                 });
         });
 
-        it('MUST have the body specified in the matching stub', function (done) {
-            var expectedbody = {
-                myfield: "mydata"
-            };
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: expectedbody,
-                            contentType: "application/json"
-                        }
-                    });
+        it('is used to wrap json response json entity as and object passed to specified callback', function (done) {
+            vanilli.stub(
+                vanilli.onGet("/my/url").respondWith(dummyStatus, {
+                    body: {
+                        some: "content"
+                    },
+                    contentType: "application/json"
                 })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res.body.myfield).to.be.equal('mydata');
-                            done();
-                        });
-                });
-        });
+            );
 
-        it('MUST have the content type specified in the matching stub', function (done) {
-            var expectedContentType = "text/plain";
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: "some data",
-                            contentType: expectedContentType
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res).to.have.header('content-type', expectedContentType);
-                            done();
-                        });
-                });
-        });
-
-        it('MUST have the headers specified in the matching stub', function (done) {
-            var expectedHeaderValue = "myvalue";
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            headers: {
-                                "My-Header": expectedHeaderValue
-                            }
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .res(function (res) {
-                            expect(res).to.have.header('my-header', expectedHeaderValue);
-                            done();
-                        });
-                });
-        });
-
-        it('MUST include subsitutions of placeholders in the body based on the values pulled from request querystring parameters', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: {
-                                myfield: "@vanilli:queryparam1@"
-                            },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl + "?queryparam1=value1")
-                        .res(function (res) {
-                            expect(res.body.myfield).to.equal("value1");
-                            done();
-                        });
-                });
-        });
-
-        it('MUST include body wrapped in JSONP callback if specified', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: "something",
-                            contentType: "text/plain"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl + "?callback=mycallback")
-                        .req(function (req) {
-                            req.buffer();
-                        })
-                        .res(function (res) {
-                            expect(res.text).to.equal('mycallback("something");');
-                            expect(res.header['content-type']).to.equal("application/javascript");
-                            done();
-                        });
-                });
-        });
-
-        it('MUST include json body wrapped as object in JSONP callback if specified', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: {
-                                myfield1: 123,
-                                myfield2: "abc"
-                            },
-                            contentType: "application/json"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl + "?callback=mycallback")
-                        .req(function (req) {
-                            req.buffer();
-                        })
-                        .res(function (res) {
-                            expect(res.text).to.equal('mycallback({"myfield1":123,"myfield2":"abc"});');
-                            expect(res.header['content-type']).to.equal("application/javascript");
-                            done();
-                        });
-                });
-        });
-
-        it('MUST use correct content type for response with content type not supported by a registered restify formatter', function (done) {
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            body: "<html><body>some page</body></html>",
-                            contentType: "text/html"
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    vanilliClient.get(dummyUrl)
-                        .req(function (req) {
-                            req.buffer();
-                        })
-                        .res(function (res) {
-                            expect(res.text).to.equal('<html><body>some page</body></html>');
-                            expect(res.header['content-type']).to.equal("text/html");
-                            done();
-                        });
-                });
-        });
-
-        it("MUST only be closed after waiting the specified length of time", function (done) {
-            var startResponse, endResponse;
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            url: dummyUrl
-                        },
-                        response: {
-                            status: dummyStatus,
-                            wait: 1000
-                        }
-                    });
-                })
-                .res(function (res) {
-                    expect(res.status).to.be.equal(200);
-                    startResponse = (new Date()).getTime();
-                    vanilliClient.get(dummyUrl)
-                        .req(function (req) {
-                            req.buffer();
-                        })
-                        .res(function () {
-                            endResponse = (new Date()).getTime();
-                            expect(endResponse - startResponse).to.be.greaterThan(1000);
-                            done();
-                        });
+            client.get("/my/url?callback=mycallback")
+                .buffer()
+                .end(function (err, res) {
+                    expect(res).to.have.header('content-type', "application/javascript");
+                    expect(res.text).to.equal("mycallback({\"some\":\"content\"});");
+                    done();
                 });
         });
     });
+
 
     describe('captures', function () {
-        it('MUST allow capturing of a POST request entity', function (done) {
-            var body = { myfield: "mydata" },
-                captureId = "mycapture";
+        it('contain request entity itself', function (done) {
+            var captureId = "mycapture";
 
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            method: 'POST',
-                            url: "my/url"
-                        },
-                        response: {
-                            status: dummyStatus
-                        },
-                        capture: captureId
-                    });
-                })
-                .res(function () {
-                    vanilliClient.post('/my/url')
-                        .req(function (req) {
-                            req.send(body);
-                        })
-                        .res(function () {
-                            vanilliClient.get('/_vanilli/captures/' + captureId)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(200);
-                                    expect(res.body.body.myfield).to.equal("mydata");
-                                    expect(res.body.contentType).to.equal("application/json");
+            vanilli.stub(
+                vanilli.onPost("/my/url")
+                    .respondWith(dummyStatus)
+                    .capture(captureId)
+            );
 
-                                    done();
-                                });
-                        });
-                });
-        });
+            client.post('/my/url')
+                .send({ some: "content" })
+                .end(function () {
+                    var capture = vanilli.getCapture(captureId);
+                    expect(capture.body).to.deep.equal({ some: "content" });
+                    expect(capture.contentType).to.deep.equal("application/json");
 
-        it('MUST allow capturing of a POST request header', function (done) {
-            var body = { some: "data" },
-                captureId = "mycapture";
-
-            vanilliClient.post('/_vanilli/stubs')
-                .req(function (req) {
-                    req.send({
-                        criteria: {
-                            method: 'POST',
-                            url: "my/url"
-                        },
-                        response: {
-                            status: dummyStatus
-                        },
-                        capture: captureId
-                    });
-                })
-                .res(function () {
-                    vanilliClient.post('/my/url')
-                        .req(function (req) {
-                            req.set('My-Header', "myvalue");
-                            req.send(body);
-                        })
-                        .res(function () {
-                            vanilliClient.get('/_vanilli/captures/' + captureId)
-                                .res(function (res) {
-                                    expect(res.status).to.be.equal(200);
-                                    expect(res.body.body.some).to.equal("data");
-
-                                    expect(res.body.headers['my-header']).to.equal("myvalue");
-
-                                    done();
-                                });
-                        });
-                });
-        });
-
-        it('MUST return a 404 if a capture is not found', function (done) {
-            vanilliClient.get('/_vanilli/captures/rubbish')
-                .res(function (res) {
-                    expect(res.status).to.be.equal(404);
                     done();
+                });
+        });
+
+        it('contain request headers', function (done) {
+            var captureId = "mycapture";
+
+            vanilli.stub(
+                vanilli.onPost("/my/url")
+                    .respondWith(dummyStatus)
+                    .capture(captureId)
+            );
+
+            client.post('/my/url')
+                .set('My-Header', "myvalue")
+                .send("somecontent")
+                .end(function () {
+                    client.get('/_vanilli/captures/' + captureId)
+                        .end(function () {
+                            var capture = vanilli.getCapture(captureId);
+
+                            expect(capture.headers["my-header"]).to.equal("myvalue");
+
+                            done();
+                        });
+                });
+        });
+
+        it('contain query params', function (done) {
+            var captureId = "mycapture";
+
+            vanilli.stub(
+                vanilli.onPost("/my/url")
+                    .respondWith(dummyStatus)
+                    .capture(captureId)
+            );
+
+            client.post('/my/url?param1=value1&param2=value2')
+                .send("somecontent")
+                .end(function () {
+                    client.get('/_vanilli/captures/' + captureId)
+                        .end(function () {
+                            var capture = vanilli.getCapture(captureId);
+
+                            expect(capture.query).to.deep.equal({
+                                param1: "value1",
+                                param2: "value2"
+                            });
+
+                            done();
+                        });
                 });
         });
     });
