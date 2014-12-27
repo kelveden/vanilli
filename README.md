@@ -74,6 +74,7 @@ Vanilli sends out CORS headers in all responses:
     Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
 
 *IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
+*NOTE*: See the section on 'Static Content' below for a possible workaround for avoiding CORS.
 
 ## JSONP
 Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter
@@ -109,7 +110,8 @@ consider using stubs as your first choice.
 
 ## Static Content
 To serve up the stubbed responses vanilli is, at its core, an HTTP server. This means that it could, potentially,
-serve up content other than stubs.
+serve up content other than stubs. This opens up the possibility of vanilli acting as your web app's
+HTTP server - thus removing any CORS considerations.
 
 So, to this end, the `static` config option was created. It acts like a "pass through" filter - if
 an incoming request matches the static filter then the static content will be served rather than
