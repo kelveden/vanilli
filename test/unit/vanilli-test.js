@@ -338,7 +338,7 @@ describe("vanilli", function () {
             vanilli.stub(
                 vanilli.onGet("/some/url").respondWith(123));
 
-            expect(vanilli.verify()).to.have.length(0);
+            expect(vanilli.verify).to.not.throw();
         });
     });
 
@@ -378,9 +378,10 @@ describe("vanilli", function () {
 
         it("can be verified", function () {
             vanilli.expect(
-                vanilli.onGet("/some/url").respondWith(123));
+                vanilli.onGet("/some/url").respondWith(123),
+                vanilli.onGet("/another/url").respondWith(123));
 
-            expect(vanilli.verify()).to.have.length(1);
+            expect(vanilli.verify).to.throw(/some.+another/);
         });
     });
 });
