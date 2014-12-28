@@ -12,7 +12,7 @@ Note that vanilli 3.x is a complete overhaul and if you're used to using previou
 
  * Vanilli runs on nodejs - it is not designed to run in the browser as well like milli.
  * [milli](https://github.com/kelveden/milli), the old javascript bindings library for vanilli has been deprecated. Instead, vanilli now provides its own javascript API.
- * All vanilli operations are now synchronous, thus making writing clearer tests easier.
+ * Vanilli's API is entirely synchronous, thus making writing succinct tests easier.
 
 ## How it works
 Vanilli is designed to act as a "fake" version of the REST services that your SUT (System Under Test) depends on. It sits running
