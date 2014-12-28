@@ -62,7 +62,7 @@ Typical usage:
 ## Configuration
 Vanilli configuration is handled via the `init()` function. See the API documentation below for more information.
 
-## Lazy Matching
+## Lazy matching
 Vanilli's matching logic is lazy - i.e. a as long as ALL the criteria on a given stub match an incoming
 request vanilli does not care about any further details of that request. So, for example, if one specifies
 a stub that matches on a specific query parameter then the matching logic ONLY cares about that query
@@ -95,7 +95,7 @@ incoming requests.
 
 See the [bunyan](https://github.com/trentm/node-bunyan) project itself for more info on logging and log levels.
 
-## Stubs vs Expectations
+## Stubs vs expectations
 For vanilli, an "expectation" is simply a specialized stub. In short: a stub MIGHT be matched; an
 expectation MUST be matched.
 
