@@ -135,7 +135,8 @@ attempting to match against a stub. The option takes the form:
 You can see an example in (test/e2e/vanilli-test.js)
 
 ## API
-*NOTE*: You can find examples of the API calls in (test/e2e/vanilli-test.js) and (test/unit/vanilli-test.js).
+### Examples
+You can find examples of the API calls in [test/e2e/vanilli-test.js](test/e2e/vanilli-test.js) and [test/unit/vanilli-test.js](test/unit/vanilli-test.js).
 
 ### init
     var vanilli = require('vanilli').init([config]);
