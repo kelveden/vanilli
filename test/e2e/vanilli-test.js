@@ -3,6 +3,7 @@ var vanilli = require('../../lib/vanilli').init({
         logLevel: "error",
         static: {
             root: "test/e2e/static",
+            "default": "something.html",
             include: [ "**/*.html" ],
             exclude: [ "**/*.xxx" ]
         }
@@ -187,7 +188,7 @@ describe('Vanilli', function () {
 
     describe('static content', function () {
         it('is served if request meets criteria of static filter', function (done) {
-            client.get('/sub/something.html')
+            client.get('/something.html')
                 .end(function (err, res) {
                     expect(res).to.have.status(200);
                     done();
@@ -195,7 +196,7 @@ describe('Vanilli', function () {
         });
 
         it('is not served if request meets include criteria but not excludes', function (done) {
-            client.get('/sub/exists.xxx')
+            client.get('/exists.xxx')
                 .end(function (err, res) {
                     expect(res).to.have.status(404);
                     done();
@@ -203,9 +204,25 @@ describe('Vanilli', function () {
         });
 
         it('serves up 404 if request meets criteria of static filter but no matching static content exists', function (done) {
-            client.get('/sub/doesnotexist.html')
+            client.get('/doesnotexist.html')
                 .end(function (err, res) {
                     expect(res).to.have.status(404);
+                    done();
+                });
+        });
+
+        it('serves up default resource for / path', function (done) {
+            client.get('/')
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
+                    done();
+                });
+        });
+
+        it('serves up default resource for no path', function (done) {
+            client.get('')
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
                     done();
                 });
         });
