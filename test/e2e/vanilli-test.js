@@ -151,20 +151,6 @@ describe('Vanilli', function () {
             });
     });
 
-    it('automatically adds CORS headers in stub responses', function (done) {
-        vanilli.stub(
-            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
-        );
-
-        client.options(dummyUrl)
-            .end(function (err, res) {
-                expect(res).to.have.header('access-control-allow-origin', "*");
-                expect(res).to.have.header('access-control-allow-methods', "GET, DELETE, PUT, POST, OPTIONS");
-                expect(res).to.have.header('access-control-allow-headers');
-                done();
-            });
-    });
-
     it("only responds after waiting the length of time specified by the stub", function (done) {
         vanilli.stub(
             vanilli.onGet(dummyUrl).respondWith(dummyStatus)

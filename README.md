@@ -14,8 +14,6 @@ javascript API.
 
 Your SUT is then configured to call vanilli instead of the REST services it usually uses.
 
-Note: If your web app has client-side code that makes XHR calls to REST services then you will need to consider the section on 'CORS' below.
-
 ## Usage
 Typical usage:
 
@@ -65,19 +63,6 @@ parameter - any other query parameters are considered irrelevant.
 
 This approach means more succinct stubs and less matching criteria irrelevant to the test at hand.
 
-## CORS
-Vanilli will usually be running on a different port to your SUT. So, if your SUT's client-side code makes calls calls to REST services
-then you'll need to take advantage of the vanilli support for [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
-
-Vanilli sends out CORS headers in all responses:
-
-    Access-Control-Allow-Origin: *
-    Access-Control-Allow-Headers: <See lib/cors.js for a list of the supported headers>
-    Access-Control-Allow-Methods: <HTTP methods for all the stubs for the resource that vanilli knows about>;
-
-*IMPORTANT*: This reliance on CORS means that the browser that you are running your tests on MUST support and be configured to support CORS.
-*NOTE*: See the section on 'Static Content' below for a possible workaround for avoiding CORS.
-
 ## JSONP
 Vanilli stub responses will automatically be wrapped in JSONP if either a "callback" or "jsonp" query string parameter
 is found on the request that the stub response is being produced for. This is not explicitly handled in vanilli but by its
@@ -113,7 +98,7 @@ consider using stubs as your first choice.
 ## Static Content
 To serve up the stubbed responses vanilli is, at its core, an HTTP server. This means that it could, potentially,
 serve up content other than stubs. This opens up the possibility of vanilli acting as your web app's
-HTTP server - thus removing any CORS considerations.
+HTTP server.
 
 So, to this end, the `static` config option was created. It acts like a "pass through" filter - if
 an incoming request matches the static filter then the static content will be served rather than
