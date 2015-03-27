@@ -1,5 +1,5 @@
 # vanilli
-[![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
+[![Build Status](https://travis-ci.org/mixradio/vanilli.png?branch=master)](https://travis-ci.org/mixradio/vanilli)
 
 Nodejs library that allows managing of a RESTful server for storing, matching and verifying stubs/expectations from a test suite.
 
