@@ -179,10 +179,13 @@ snippet illustrates all available options:
         ...
         headerX: <string or RegExp>
     },
+    priority: 0
 }
 ```
-
-*NOTE*: If a `body` is specified then a `contentType` MUST be specified.
+NOTES:
+ * If a `body` is specified then a `contentType` MUST be specified.
+ * The `priority` of the stub indicates the precedence of the stub over other stubs matching the same
+ request: whichever stub has the lowest priority value "wins". By default a stub has the priority 0.
 
 ### vanilli.onPut
 As for `vanilli.onGet` except that the HTTP method for the stub is PUT.
