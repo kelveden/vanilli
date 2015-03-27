@@ -56,6 +56,19 @@ describe('Vanilli', function () {
             });
     });
 
+    it('serves up the stub matching the correct priority', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/my/url", { priority: 1 }).respondWith(123),
+            vanilli.onGet("/my/url").respondWith(234)
+        );
+
+        client.get("/my/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(234);
+                done();
+            });
+    });
+
     it('adds headers from matching stub to response', function (done) {
         vanilli.stub(
             vanilli.onGet(dummyUrl).respondWith(dummyStatus, {

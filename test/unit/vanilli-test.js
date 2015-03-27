@@ -64,12 +64,9 @@ describe("vanilli", function () {
             expect(stub.criteria.contentType).to.equal("my/contenttype");
         });
 
-        it("adds the specified priority criteria to the stub", function () {
-            var stub = vanilli.onGet("/some/url", {
-                priority: 1
-            });
-
-            expect(stub.criteria.priority).to.equal(1);
+        it("adds the specified priority to the stub", function () {
+            var stub = vanilli.onGet("/some/url", { priority: 1 });
+            expect(stub.priority).to.equal(1);
         });
 
         it("adds the specified body criteria to the stub", function () {
