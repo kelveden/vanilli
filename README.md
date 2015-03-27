@@ -19,38 +19,40 @@ Note: If your web app has client-side code that makes XHR calls to REST services
 ## Usage
 Typical usage:
 
-    var vanilli = require('vanilli').init();
+```js
+var vanilli = require('vanilli').init();
 
-    describe('My SUT', function () {
-        before(function () {
-            vanilli.listen(port); // Start the vanilli REST server
-        });
-
-        after(function () {
-            vanilli.stop(); // Shutdown vanilli REST server
-        });
-
-        afterEach(function () {
-            vanilli.verify(); // Verify all expectations have been met
-            vanilli.clear(); // Clear down stubs from vanilli ready for next test
-        });
-
-        it('does something', function (done) {
-            vanilli.stub(
-                vanilli.onGet("/this/url/MIGHT/happen").respondWith(200)
-            );
-
-            vanilli.expect(
-                vanilli.onGet("/this/url/MUST/happen").respondWith(200)
-            );
-
-            // Manipulate SUT to required state
-
-            // Make assertions
-
-            // Note that the vanilli expectation above will be verified by the vanilli.verify() in 'afterEach'.
-        });
+describe('My SUT', function () {
+    before(function () {
+        vanilli.listen(port); // Start the vanilli REST server
     });
+
+    after(function () {
+        vanilli.stop(); // Shutdown vanilli REST server
+    });
+
+    afterEach(function () {
+        vanilli.verify(); // Verify all expectations have been met
+        vanilli.clear(); // Clear down stubs from vanilli ready for next test
+    });
+
+    it('does something', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/this/url/MIGHT/happen").respondWith(200)
+        );
+
+        vanilli.expect(
+            vanilli.onGet("/this/url/MUST/happen").respondWith(200)
+        );
+
+        // Manipulate SUT to required state
+
+        // Make assertions
+
+        // Note that the vanilli expectation above will be verified by the vanilli.verify() in 'afterEach'.
+    });
+});
+```
 
 ## Configuration
 Vanilli configuration is handled via the `init()` function. See the API documentation below for more information.
@@ -117,13 +119,15 @@ So, to this end, the `static` config option was created. It acts like a "pass th
 an incoming request matches the static filter then the static content will be served rather than
 attempting to match against a stub. The option takes the form:
 
-    {
-        static: {
-            root: "sut/static/root",
-            include: [ glob1, glob2, ... , globX ],
-            exclude: [ globA, globB, ... , globZ ]
-        }
+```js
+{
+    static: {
+        root: "sut/static/root",
+        include: [ glob1, glob2, ... , globX ],
+        exclude: [ globA, globB, ... , globZ ]
     }
+}
+```
 
 You can see an example in (test/e2e/vanilli-test.js)
 
@@ -137,10 +141,12 @@ You can find examples of the API calls in [test/e2e/vanilli-test.js](test/e2e/va
 Creates a new vanilli instance. Optional configuration values can be specified. All options are
 given below with their default values:
 
-    {
-        logLevel: "error", // See 'Diagnostics' section above
-        static: undefined // See 'Static Content' section above
-    }
+```js
+{
+    logLevel: "error", // See 'Diagnostics' section above
+    static: undefined // See 'Static Content' section above
+}
+```
 
 ### vanilli.stub
     vanilli.stub(stub1, stub2, ... , stubX);
@@ -159,20 +165,22 @@ Returns a new stub that will match against an incoming GET request with a relati
 that specified. Further matching criteria can be specified via the options object. The following
 snippet illustrates all available options:
 
-    {
-        contentType: <string or RegExp>,
-        body: <string, object or RegExp>,
-        query: {
-            param1: <string or RegExp>,
-            ...
-            paramX: <string or RegExp>
-        },
-        headers: {
-            header1: <string or RegExp>,
-            ...
-            headerX: <string or RegExp>
-        },
-    }
+```js
+{
+    contentType: <string or RegExp>,
+    body: <string, object or RegExp>,
+    query: {
+        param1: <string or RegExp>,
+        ...
+        paramX: <string or RegExp>
+    },
+    headers: {
+        header1: <string or RegExp>,
+        ...
+        headerX: <string or RegExp>
+    },
+}
+```
 
 *NOTE*: If a `body` is specified then a `contentType` MUST be specified.
 
@@ -230,14 +238,16 @@ number of milliseconds before responding with the stubbed response.
 Adds details of the response to the stub. At minimum, a status code can be specified; however, more
 details for the response can be specified via the options. The following snippet illustrates all options.
 
-    {
-        contentType: <string>,
-        body: <string or object>,
-        headers: {
-            header1: <string>,
-            ...
-            headerX: <string>
-        }
+```js
+{
+    contentType: <string>,
+    body: <string or object>,
+    headers: {
+        header1: <string>,
+        ...
+        headerX: <string>
     }
+}
+```
 
 *NOTE*: If a `body` is specified then a `contentType` MUST be specified.
