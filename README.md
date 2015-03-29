@@ -70,6 +70,8 @@ describe('My SUT', function () {
 });
 ```
 
+See the [API](https://github.com/mixradio/vanilli/wiki/API) for more usage information.
+
 ## Lazy matching
 Vanilli's matching logic is lazy - i.e. a as long as ALL the criteria on a given stub match an incoming
 request vanilli does not care about any further details of that request. So, for example, if one specifies
