@@ -71,7 +71,7 @@ underlying [restify](http://mcavage.me/node-restify/) server instead.
 ## Diagnostics
 Vanilli logs to sysout and syserr via [bunyan](https://github.com/trentm/node-bunyan). Switching `logLevel` to `debug` will cause
 vanilli to spit out a whole load of diagnostic information relating to what stubs are stored and how it is matching stubs against
-incoming requests.
+incoming requests. In such situations I recommend piping the output to the `bunyan` executable itself (which you can install in the usual way with `npm install -g bunyan`) to get nicely formatted output.
 
 See the [bunyan](https://github.com/trentm/node-bunyan) project itself for more info on logging and log levels.
 
