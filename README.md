@@ -3,6 +3,8 @@
 
 Nodejs library that allows managing of a RESTful server for storing, matching and verifying stubs/expectations from a test suite.
 
+[API](https://github.com/mixradio/vanilli/wiki/API)
+
 ## How it works
 Vanilli is designed to act as a "fake" version of the REST services that your SUT (System Under Test) depends on. It sits running
 on a port you specify, waiting to serve up responses that you specify via adding stubs. Stubs are added and verified via the
