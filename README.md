@@ -121,7 +121,9 @@ You can see an example in (test/e2e/vanilli-test.js)
 You can find examples of the API calls in [test/e2e/vanilli-test.js](test/e2e/vanilli-test.js) and [test/unit/vanilli-test.js](test/unit/vanilli-test.js).
 
 ### init
-    var vanilli = require('vanilli').init([config]);
+```js
+var vanilli = require('vanilli').init(config);
+```
 
 Creates a new vanilli instance. Optional configuration values can be specified. All options are
 given below with their default values:
@@ -134,17 +136,22 @@ given below with their default values:
 ```
 
 ### vanilli.stub
-    vanilli.stub(stub1, stub2, ... , stubX);
-
+```js
+vanilli.stub(stub1, stub2, ... , stubX);
+```
 Registers one or more stubs.
 
 ### vanilli.expect
-    vanilli.expect(stub1, stub2, ... , stubX);
+```js
+vanilli.expect(stub1, stub2, ... , stubX);
+```
 
 Registers one or more stubs as expectations. (See 'Stubs vs Expectations' section below.)
 
 ### vanilli.onGet
-    vanilli.onGet(url[, options]);
+```js
+vanilli.onGet(url[, options]);
+```
 
 Returns a new stub that will match against an incoming GET request with a relative URL matching
 that specified. Further matching criteria can be specified via the options object. The following
@@ -182,46 +189,62 @@ As for `vanilli.onGet` except that the HTTP method for the stub is POST.
 As for `vanilli.onGet` except that the HTTP method for the stub is DELETE.
 
 ### vanilli.listen
-    vanilli.listen(port);
+```js
+vanilli.listen(port);
+```
 
 Starts the vanilli REST server listening on the specified port.
 
 ### vanilli.stop
-    vanilli.stop();
+```js
+vanilli.stop();
+```
 
 Stops the vanilli REST server.
 
 ### vanilli.verify
-    vanilli.verify();
+```js
+vanilli.verify();
+```
 
 Verifies that the expectations currently registered with vanilli have been met. If verification fails
 a single error is thrown detailing all unmet expectations.
 
 ### vanilli.clear
-    vanilli.clear();
+```js
+vanilli.clear();
+```
 
 Clears vanilli down of all stubs and expectations.
 
 ### vanilli.getCapture
-    var captureDetails = vanilli.getCapture(captureId);
+```js
+var captureDetails = vanilli.getCapture(captureId);
+```
 
 Gets details of the request indicated by the specified captureId. (See `stub.capture`.)
 
 ### stub.capture
-    stub.capture(captureId);
+```js
+stub.capture(captureId);
+```
 
 Indicates that vanilli should store the details of the request that is eventually matched against
 the stub. The specified captureId can then be used as a handle to `vanilli.getCapture` to pull
 those details back for asserting on.
 
 ### stub.wait
-    stub.wait(milliseconds);
+```
+stub.wait(milliseconds);
+```
 
 Indicates that when vanilli matches this stub against an incoming request it should wait the specified
 number of milliseconds before responding with the stubbed response.
 
 ### stub.respondWith
-    stub.respondWith(status[, options]);
+```js
+stub.respondWith(status[, options]);
+```
 
 Adds details of the response to the stub. At minimum, a status code can be specified; however, more
 details for the response can be specified via the options. The following snippet illustrates all options.
