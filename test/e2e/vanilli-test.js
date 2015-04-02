@@ -151,16 +151,53 @@ describe('Vanilli', function () {
             });
     });
 
-    it('automatically adds CORS headers in stub responses', function (done) {
+    it('uses CORS to allow requests to vanilli from other ports', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
+        );
+
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.header('access-control-allow-origin', "*");
+                done();
+            });
+    });
+
+    it('echoes specified request headers back as access-control-allow-headers header for CORS preflight request', function (done) {
         vanilli.stub(
             vanilli.onGet(dummyUrl).respondWith(dummyStatus)
         );
 
         client.options(dummyUrl)
+            .set("access-control-request-headers", "header1, header2, header3")
             .end(function (err, res) {
-                expect(res).to.have.header('access-control-allow-origin', "*");
-                expect(res).to.have.header('access-control-allow-methods', "GET, DELETE, PUT, POST, OPTIONS");
-                expect(res).to.have.header('access-control-allow-headers');
+                expect(res).to.have.header('access-control-allow-headers', "header1, header2, header3");
+                done();
+            });
+    });
+
+    it('echoes specified request method back as access-control-allow-methods header for CORS preflight request', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
+        );
+
+        client.options(dummyUrl)
+            .set("access-control-request-methods", "DELETE")
+            .end(function (err, res) {
+                expect(res).to.have.header('access-control-allow-methods', "DELETE");
+                done();
+            });
+    });
+
+    it('does not echo back CORS preflight response headers for non-preflight request', function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).respondWith(dummyStatus)
+        );
+
+        client.get(dummyUrl)
+            .end(function (err, res) {
+                expect(res).not.to.have.header('access-control-allow-methods');
+                expect(res).not.to.have.header('access-control-allow-headers');
                 done();
             });
     });
