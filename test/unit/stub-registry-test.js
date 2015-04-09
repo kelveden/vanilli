@@ -632,7 +632,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ path: path("another/url"), method: 'GET' })).to.not.exist;
         });
 
-        it('matches the first matching stub', function () {
+        it('matches the last matching stub', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl
@@ -650,7 +650,7 @@ describe('The stub registry', function () {
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(123);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(456);
         });
 
         it('matches the highest priority (i.e. lowest number) matching stub', function () {
@@ -676,7 +676,7 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(456);
         });
 
-        it('matches the first matching stub when priorities match', function () {
+        it('matches the last matching stub when priorities match', function () {
             registry.addStub({
                 criteria: {
                     url: dummyUrl
@@ -696,7 +696,7 @@ describe('The stub registry', function () {
                 }
             });
 
-            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(123);
+            expect(registry.findMatchFor({ path: path(dummyPath), method: 'GET' }).response.status).to.equal(456);
         });
 
         it('assumes a priority of 0 for stubs without an explicit priority', function () {
