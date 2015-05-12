@@ -249,6 +249,23 @@ describe('Vanilli', function () {
             });
     });
 
+    it('can parse custom content-types for request and responses', function (done) {
+        vanilli.stub(
+            vanilli.onPost(dummyUrl, { body: { a: 'A' }, contentType: 'application/vnd.custom+json' })
+                .respondWith(123, { contentType: "application/vnd.custom2+json"
+            })
+        );
+
+        client.post(dummyUrl)
+            .type('application/vnd.custom+json')
+            .send(JSON.stringify({ a: 'A' }))
+            .end(function (err, res) {
+                expect(res).to.have.status(123);
+                expect(res.header['content-type']).to.equal('application/vnd.custom2+json');
+                done();
+            });
+    });
+
     describe('static content', function () {
         it('is served if request meets criteria of static filter', function (done) {
             client.get('/something.html')
