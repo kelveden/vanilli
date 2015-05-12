@@ -251,8 +251,9 @@ describe('Vanilli', function () {
 
     it('can parse custom content-types for request and responses', function (done) {
         vanilli.stub(
-            vanilli.onPost(dummyUrl, { body: { a: 'A' }, contentType: 'application/vnd.custom+json' }).respondWith(123),
-            vanilli.onPost(dummyUrl, { body: { b: 'B' }, contentType: 'application/vnd.custom+json' }).respondWith(234)
+            vanilli.onPost(dummyUrl, { body: { a: 'A' }, contentType: 'application/vnd.custom+json' })
+                .respondWith(123, { contentType: "application/vnd.custom2+json"
+            })
         );
 
         client.post(dummyUrl)
@@ -260,7 +261,7 @@ describe('Vanilli', function () {
             .send(JSON.stringify({ a: 'A' }))
             .end(function (err, res) {
                 expect(res).to.have.status(123);
-                expect(res.header['content-type']).to.equal('application/vnd.custom+json');
+                expect(res.header['content-type']).to.equal('application/vnd.custom2+json');
                 done();
             });
     });
