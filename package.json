@@ -18,6 +18,9 @@
   "author": {
     "name": "Alistair Dutton"
   },
+  "contributors": [
+      "Dan Scotton"
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/vanilli/issues"
