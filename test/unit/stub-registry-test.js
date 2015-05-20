@@ -877,6 +877,41 @@ describe('The stub registry', function () {
             expect(registry.getCapture('mycapture').body).to.deep.equal(body);
             expect(registry.getCapture('mycapture').contentType).to.equal(contentType);
         });
+
+        it('can capture multiple requests', function () {
+            var contentType = "my/contenttype";
+
+            registry.addStub({
+                criteria: {
+                    method: 'POST',
+                    url: "/my/url"
+                },
+                response: dummyResponse,
+                captureId: "mycapture"
+            });
+
+            registry.findMatchFor({
+                path: path("my/url"),
+                method: 'POST',
+                body: { some: 'body' },
+                contentType: function () {
+                    return contentType;
+                }
+            });
+
+            registry.findMatchFor({
+                path: path("my/url"),
+                method: 'POST',
+                body: { other: 'body' },
+                contentType: function () {
+                    return contentType;
+                }
+            });
+
+            expect(registry.getCaptures('mycapture')).to.have.length(2);
+            expect(registry.getCaptures('mycapture')[0].body).to.deep.equal({ some: 'body' });
+            expect(registry.getCaptures('mycapture')[1].body).to.deep.equal({ other: 'body' });
+        });
     });
 });
 

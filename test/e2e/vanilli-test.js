@@ -358,74 +358,108 @@ describe('Vanilli', function () {
 
 
     describe('captures', function () {
-        it('contain request entity itself', function (done) {
+        describe('getting the most recent capture', function () {
+            it('contain request entity itself', function (done) {
+                var captureId = "mycapture";
+
+                vanilli.stub(
+                    vanilli.onPost("/my/url")
+                        .respondWith(dummyStatus)
+                        .capture(captureId)
+                );
+
+                client.post('/my/url')
+                    .send({ some: "content" })
+                    .end(function () {
+                        var capture = vanilli.getCapture(captureId);
+                        expect(capture.body).to.deep.equal({ some: "content" });
+                        expect(capture.contentType).to.deep.equal("application/json");
+
+                        done();
+                    });
+            });
+
+            it('contain request headers', function (done) {
+                var captureId = "mycapture";
+
+                vanilli.stub(
+                    vanilli.onPost("/my/url")
+                        .respondWith(dummyStatus)
+                        .capture(captureId)
+                );
+
+                client.post('/my/url')
+                    .set('My-Header', "myvalue")
+                    .send("somecontent")
+                    .end(function () {
+                        client.get('/_vanilli/captures/' + captureId)
+                            .end(function () {
+                                var capture = vanilli.getCapture(captureId);
+
+                                expect(capture.headers["my-header"]).to.equal("myvalue");
+
+                                done();
+                            });
+                    });
+            });
+
+            it('contain query params', function (done) {
+                var captureId = "mycapture";
+
+                vanilli.stub(
+                    vanilli.onPost("/my/url")
+                        .respondWith(dummyStatus)
+                        .capture(captureId)
+                );
+
+                client.post('/my/url?param1=value1&param2=value2')
+                    .send("somecontent")
+                    .end(function () {
+                        client.get('/_vanilli/captures/' + captureId)
+                            .end(function () {
+                                var capture = vanilli.getCapture(captureId);
+
+                                expect(capture.query).to.deep.equal({
+                                    param1: "value1",
+                                    param2: "value2"
+                                });
+
+                                done();
+                            });
+                    });
+            });
+        });
+    });
+
+    describe('getting all captures for a given capture id', function () {
+        it('returns an empty array if no captures', function () {
+            expect(vanilli.getCaptures('foo')).to.eql([]);
+        });
+
+        it('returns an array of captures', function (done) {
             var captureId = "mycapture";
 
             vanilli.stub(
                 vanilli.onPost("/my/url")
-                    .respondWith(dummyStatus)
+                    .respondWith(dummyStatus, { times: 2 })
                     .capture(captureId)
             );
 
             client.post('/my/url')
                 .send({ some: "content" })
+                .end();
+            client.post('/my/url')
+                .send({ some: "other content" })
                 .end(function () {
-                    var capture = vanilli.getCapture(captureId);
-                    expect(capture.body).to.deep.equal({ some: "content" });
-                    expect(capture.contentType).to.deep.equal("application/json");
+                    var captures = vanilli.getCaptures(captureId);
+
+                    expect(captures).to.have.length(2);
+                    expect(captures[0].body).to.deep.equal({ some: "content" });
+                    expect(captures[1].body).to.deep.equal({ some: "other content" });
 
                     done();
                 });
         });
 
-        it('contain request headers', function (done) {
-            var captureId = "mycapture";
-
-            vanilli.stub(
-                vanilli.onPost("/my/url")
-                    .respondWith(dummyStatus)
-                    .capture(captureId)
-            );
-
-            client.post('/my/url')
-                .set('My-Header', "myvalue")
-                .send("somecontent")
-                .end(function () {
-                    client.get('/_vanilli/captures/' + captureId)
-                        .end(function () {
-                            var capture = vanilli.getCapture(captureId);
-
-                            expect(capture.headers["my-header"]).to.equal("myvalue");
-
-                            done();
-                        });
-                });
-        });
-
-        it('contain query params', function (done) {
-            var captureId = "mycapture";
-
-            vanilli.stub(
-                vanilli.onPost("/my/url")
-                    .respondWith(dummyStatus)
-                    .capture(captureId)
-            );
-
-            client.post('/my/url?param1=value1&param2=value2')
-                .send("somecontent")
-                .end(function () {
-                    client.get('/_vanilli/captures/' + captureId)
-                        .end(function () {
-                            var capture = vanilli.getCapture(captureId);
-
-                            expect(capture.query).to.deep.equal({
-                                param1: "value1",
-                                param2: "value2"
-                            });
-
-                            done();
-                        });
-                });
-        });
     });
 });
