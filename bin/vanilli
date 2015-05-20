@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+
+var path = require('path'),
+    fs = require('fs'),
+    argv = require('optimist')
+        .usage('Usage: $0 --port [num] --logLevel [debug|info|warn|error]')
+        .demand('port')
+        .describe('port', 'Port to run Vanilli on')
+        .describe('logLevel', 'Log level')
+        .default('logLevel', 'info')
+        .describe('staticRoot', 'Root for static content')
+        .describe('staticInclude', 'Comma-separated list of globs for inclusion as static content')
+        .describe('staticExclude', 'Comma-separated list of globs for exclusion as static content')
+        .describe('staticDefault', 'Static content default document')
+        .argv,
+    port = argv.port,
+    logLevel = argv.logLevel,
+    staticRoot = argv.staticRoot,
+    staticDefault = argv.staticDefault,
+    staticInclude = argv.staticInclude ? argv.staticInclude.split(",") : null,
+    staticExclude = argv.staticExclude ? argv.staticExclude.split(",") : null,
+    dir = path.resolve(process.cwd(), 'node_modules', 'vanilli', 'lib');
+
+if (!fs.existsSync(dir)) {
+  dir = path.join('..', 'lib');
+}
+
+require(path.join(dir, 'vanilli'))
+    .init({ logLevel: logLevel,
+            static: {
+                root: staticRoot,
+                default: staticDefault,
+                include: staticInclude,
+                exclude: staticExclude
+            }
+     })
+    .listen(port);

@@ -3,6 +3,7 @@
   "version": "4.0.1",
   "description": "Setup and serve stubs, fakes and expectations",
   "main": "./lib/vanilli.js",
+  "bin": "./bin/vanilli",
   "scripts": {
     "test": "node_modules/.bin/gulp"
   },
@@ -19,7 +20,7 @@
     "name": "Alistair Dutton"
   },
   "contributors": [
-      "Dan Scotton"
+    "Dan Scotton"
   ],
   "license": "BSD-3-Clause",
   "bugs": {
@@ -30,6 +31,7 @@
     "lodash": "2.4.1",
     "minimatch": "2.0.1",
     "node-uuid": "1.4.2",
+    "optimist": "0.6.1",
     "restify": "2.8.4"
   },
   "devDependencies": {
