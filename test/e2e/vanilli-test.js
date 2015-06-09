@@ -4,7 +4,7 @@ var vanilli = require('../../lib/vanilli').init({
         static: {
             root: "test/e2e/static",
             "default": "something.html",
-            include: [ "**/*.html" ],
+            include: [ "**/*.html", { path: '/foo', target: 'foo.html' }, { path: '/bar', useDefault: true } ],
             exclude: [ "**/*.xxx" ]
         }
     }),
@@ -311,6 +311,22 @@ describe('Vanilli', function () {
 
         it('serves up default resource for no path', function (done) {
             client.get('')
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
+                    done();
+                });
+        });
+
+        it('serves up default resource proxy routes using default as target', function (done) {
+            client.get('/foo')
+                .end(function (err, res) {
+                    expect(res).to.have.status(200);
+                    done();
+                });
+        });
+
+        it('serves up specified target resource for proxy route if request meets criteria of static filter', function (done) {
+            client.get('/bar')
                 .end(function (err, res) {
                     expect(res).to.have.status(200);
                     done();
