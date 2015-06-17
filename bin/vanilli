@@ -2,12 +2,13 @@
 
 var path = require('path'),
     fs = require('fs'),
-    argv = require('optimist')
-        .usage('Usage: $0 --port [num] --logLevel [debug|info|warn|error]')
-        .demand('port')
+    optimist = require('optimist'),
+    argv = optimist
+        .usage('Usage: $0 --port [num]')
         .describe('port', 'Port to run Vanilli on')
         .describe('logLevel', 'Log level')
         .default('logLevel', 'info')
+        .describe('version', 'Print the version and exit')
         .describe('staticRoot', 'Root for static content')
         .describe('staticInclude', 'Comma-separated list of globs for inclusion as static content')
         .describe('staticExclude', 'Comma-separated list of globs for exclusion as static content')
@@ -21,8 +22,18 @@ var path = require('path'),
     staticExclude = argv.staticExclude ? argv.staticExclude.split(",") : null,
     dir = path.resolve(process.cwd(), 'node_modules', 'vanilli', 'lib');
 
+if (argv.version) {
+    console.log(require('../package.json').version);
+    process.exit();
+}
+
+if (!port) {
+    optimist.showHelp();
+    process.exit(1);
+}
+
 if (!fs.existsSync(dir)) {
-  dir = path.join('..', 'lib');
+    dir = path.join('..', 'lib');
 }
 
 require(path.join(dir, 'vanilli'))
