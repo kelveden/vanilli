@@ -18,8 +18,8 @@ var path = require('path'),
     logLevel = argv.logLevel,
     staticRoot = argv.staticRoot,
     staticDefault = argv.staticDefault,
-    staticInclude = argv.staticInclude ? argv.staticInclude.split(",") : null,
-    staticExclude = argv.staticExclude ? argv.staticExclude.split(",") : null,
+    staticInclude = argv.staticInclude ? JSON.parse(argv.staticInclude) : null,
+    staticExclude = argv.staticExclude ? JSON.parse(argv.staticExclude) : null,
     dir = path.resolve(process.cwd(), 'node_modules', 'vanilli', 'lib');
 
 if (argv.version) {
