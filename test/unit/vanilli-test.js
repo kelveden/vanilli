@@ -309,6 +309,14 @@ describe("vanilli", function () {
             expect(stub.times).to.equal(1);
         });
 
+        it("assumes 'any' number of times if anyTimes called", function () {
+            var stub = vanilli.onGet("/some/url")
+                .respondWith(123)
+                .anyTimes();
+
+            expect(stub.times).to.be.undefined();
+        });
+
         it("assigns specified capture id to stub", function () {
             var stub = vanilli.onGet("/some/url")
                 .respondWith(123)
@@ -381,6 +389,24 @@ describe("vanilli", function () {
             expect(stubs[1].id).not.to.be.undefined();
             expect(stubs[1].criteria.url).to.equal("/another/url");
             expect(stubs[1].expect).to.be.true();
+        });
+
+        it("anyTimes is ignored", function () {
+            var stubs =
+                vanilli.expect(
+                    vanilli.onGet("/some/url").respondWith(123).anyTimes());
+
+            expect(stubs).to.have.length(1);
+            expect(stubs[0].times).to.equal(1);
+        });
+
+        it("explicit times is honoured", function () {
+            var stubs =
+                vanilli.expect(
+                    vanilli.onGet("/some/url").respondWith(123, { times: 3 }));
+
+            expect(stubs).to.have.length(1);
+            expect(stubs[0].times).to.equal(3);
         });
 
         it("can be cleared", function () {
