@@ -66,6 +66,18 @@ describe('Vanilli', function () {
             });
     });
 
+    it.only('serves up the stub matching the incoming request containing repeated query param', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/my/url", { query: { param1: [ "a", "b" ] } }).respondWith(123)
+        );
+
+        client.get("/my/url?param1=a&param1=b")
+            .end(function (err, res) {
+                expect(res).to.have.status(123);
+                done();
+            });
+    });
+
     it('serves up the stub matching the correct priority', function (done) {
         vanilli.stub(
             vanilli.onGet("/my/url", { priority: 1 }).respondWith(123),

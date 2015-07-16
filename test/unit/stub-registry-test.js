@@ -621,6 +621,38 @@ describe('The stub registry', function () {
             })).to.not.exist;
         });
 
+        it('will match on stub specified with repeated query params when request has all query params', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    query: {
+                        param1: [ "myvalue1", "myvalue2" ],
+                    }
+                },
+                response: dummyResponse
+            });
+
+            expect(registry.findMatchFor({
+                path: path(dummyPath), method: 'GET', query: { param1: [ "myvalue2", "myvalue1" ]}
+            })).to.exist;
+        });
+
+        it('will match on stub specified with repeated query params when request does not have all values', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    query: {
+                        param1: [ "myvalue1", "myvalue2" ],
+                    }
+                },
+                response: dummyResponse
+            });
+
+            expect(registry.findMatchFor({
+                path: path(dummyPath), method: 'GET', query: { param1: [ "myvalue2" ]}
+            })).to.not.exist;
+        });
+
         it('returns null if no stub can be matched', function () {
             registry.addStub({
                 criteria: {
