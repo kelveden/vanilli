@@ -66,7 +66,7 @@ describe('Vanilli', function () {
             });
     });
 
-    it.only('serves up the stub matching the incoming request containing repeated query param', function (done) {
+    it('serves up the stub matching the incoming request containing repeated query param', function (done) {
         vanilli.stub(
             vanilli.onGet("/my/url", { query: { param1: [ "a", "b" ] } }).respondWith(123)
         );
