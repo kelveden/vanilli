@@ -436,13 +436,63 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({
                 path: path("my/url"),
                 method: 'GET',
-                body: JSON.stringify({
+                body: {
                     myfield: "myvalue"
-                }),
+                },
                 contentType: function () {
                     return "application/json";
                 }
             })).to.exist;
+        });
+
+        it('will match on stub with bodies despite extra fields', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    body: {
+                        my: { field: "value" }
+                    },
+                    contentType: "application/json"
+                },
+                response: dummyResponse
+            });
+
+            expect(registry.findMatchFor({
+                path: path("my/url"),
+                method: 'GET',
+                body: {
+                    my: { field: "value" },
+                    another: { field: "another" }
+                },
+                contentType: function () {
+                    return "application/json";
+                }
+            })).to.exist;
+        });
+
+        it('will NOT match on stub with bodies if not all fields present', function () {
+            registry.addStub({
+                criteria: {
+                    url: dummyUrl,
+                    body: {
+                        my: { field: "value" },
+                        another: { field: "another" }
+                    },
+                    contentType: "application/json"
+                },
+                response: dummyResponse
+            });
+
+            expect(registry.findMatchFor({
+                path: path("my/url"),
+                method: 'GET',
+                body: {
+                    my: { field: "value" }
+                },
+                contentType: function () {
+                    return "application/json";
+                }
+            })).to.not.exist;
         });
 
         it('will NOT match on stub specified with matching body but different content type', function () {
