@@ -274,8 +274,7 @@ describe('Vanilli', function () {
     it('can parse custom content-types for request and responses', function (done) {
         vanilli.stub(
             vanilli.onPost(dummyUrl, { body: { a: 'A' }, contentType: 'application/vnd.custom+json' })
-                .respondWith(123, { contentType: "application/vnd.custom2+json"
-            })
+                .respondWith(123, { contentType: "application/vnd.custom2+json" })
         );
 
         client.post(dummyUrl)
@@ -284,6 +283,20 @@ describe('Vanilli', function () {
             .end(function (err, res) {
                 expect(res).to.have.status(123);
                 expect(res.header['content-type']).to.equal('application/vnd.custom2+json');
+                done();
+            });
+    });
+
+    it('can match stubs on post body, despite extra fields', function (done) {
+        vanilli.stub(
+            vanilli.onPost(dummyUrl, { body: { a: 'A' }, contentType: 'application/json' })
+                .respondWith(123)
+        );
+
+        client.post(dummyUrl)
+            .send({ a: 'A', b: 'B' })
+            .end(function (err, res) {
+                expect(res).to.have.status(123);
                 done();
             });
     });
