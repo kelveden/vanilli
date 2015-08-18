@@ -254,6 +254,22 @@ describe('Vanilli', function () {
             });
     });
 
+    it("supports 'wait' specified before 'respondWith' syntactic sugar", function (done) {
+        vanilli.stub(
+            vanilli.onGet(dummyUrl).wait(200).respondWith(dummyStatus)
+        );
+
+        var startResponse = (new Date()).getTime();
+
+        client.get(dummyUrl)
+            .buffer()
+            .end(function () {
+                var endResponse = (new Date()).getTime();
+                expect(endResponse - startResponse).to.be.greaterThan(200);
+                done();
+            });
+    });
+
     it('uses correct content type for response when content type not supported by a registered restify formatter', function (done) {
         vanilli.stub(
             vanilli.onGet(dummyUrl).respondWith(dummyStatus, {
