@@ -131,7 +131,7 @@ attempting to match against a stub. The option takes the form:
 }
 ```
 
-You can see an example in (test/e2e/vanilli-test.js)
+You can see an example in [test/e2e/vanilli-test.js](https://github.com/mixradio/vanilli/blob/master/test/e2e/vanilli-test.js#L320)
 
 ## CLI
 As well as the javascript API described above, the vanilli server also provides a CLI for starting a server from non-javascript environments. To see the CLI simply run `vanilli --help`. (You may need to install vanilli globally first with `npm install -g vanilli`.) 
