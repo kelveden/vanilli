@@ -293,6 +293,14 @@ describe("vanilli", function () {
             expect(stub.response.wait).to.equal(2000);
         });
 
+        it("adds specified response wait to stub when wait specified first", function () {
+            var stub = vanilli.onGet("/some/url")
+                .wait(2000)
+                .respondWith(123);
+
+            expect(stub.response.wait).to.equal(2000);
+        });
+
         it("adds number of times for the stub to respond", function () {
             var stub = vanilli.onGet("/some/url")
                 .respondWith(123, {
@@ -333,7 +341,7 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123));
 
             expect(stubs).to.have.length(1);
-            expect(stubs[0].id).not.to.be.undefined();
+            expect(stubs[ 0 ].id).not.to.be.undefined();
         });
 
         it("can be added in one go", function () {
@@ -343,10 +351,10 @@ describe("vanilli", function () {
                     vanilli.onGet("/another/url").respondWith(456));
 
             expect(stubs).to.have.length(2);
-            expect(stubs[0].id).not.to.be.undefined();
-            expect(stubs[0].criteria.url).to.equal("/some/url");
-            expect(stubs[1].id).not.to.be.undefined();
-            expect(stubs[1].criteria.url).to.equal("/another/url");
+            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].criteria.url).to.equal("/some/url");
+            expect(stubs[ 1 ].id).not.to.be.undefined();
+            expect(stubs[ 1 ].criteria.url).to.equal("/another/url");
         });
 
         it("can be cleared", function () {
@@ -372,8 +380,8 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123));
 
             expect(stubs).to.have.length(1);
-            expect(stubs[0].id).not.to.be.undefined();
-            expect(stubs[0].expect).to.be.true();
+            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].expect).to.be.true();
         });
 
         it("can be added in one go", function () {
@@ -383,12 +391,12 @@ describe("vanilli", function () {
                     vanilli.onGet("/another/url").respondWith(456));
 
             expect(stubs).to.have.length(2);
-            expect(stubs[0].id).not.to.be.undefined();
-            expect(stubs[0].criteria.url).to.equal("/some/url");
-            expect(stubs[0].expect).to.be.true();
-            expect(stubs[1].id).not.to.be.undefined();
-            expect(stubs[1].criteria.url).to.equal("/another/url");
-            expect(stubs[1].expect).to.be.true();
+            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].criteria.url).to.equal("/some/url");
+            expect(stubs[ 0 ].expect).to.be.true();
+            expect(stubs[ 1 ].id).not.to.be.undefined();
+            expect(stubs[ 1 ].criteria.url).to.equal("/another/url");
+            expect(stubs[ 1 ].expect).to.be.true();
         });
 
         it("anyTimes is ignored", function () {
@@ -397,7 +405,7 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123).anyTimes());
 
             expect(stubs).to.have.length(1);
-            expect(stubs[0].times).to.equal(1);
+            expect(stubs[ 0 ].times).to.equal(1);
         });
 
         it("explicit times is honoured", function () {
@@ -406,7 +414,7 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123, { times: 3 }));
 
             expect(stubs).to.have.length(1);
-            expect(stubs[0].times).to.equal(3);
+            expect(stubs[ 0 ].times).to.equal(3);
         });
 
         it("can be cleared", function () {
