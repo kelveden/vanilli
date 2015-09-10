@@ -125,7 +125,13 @@ attempting to match against a stub. The option takes the form:
 {
     static: {
         root: "sut/static/root",
-        include: [ glob1, glob2, ... , globX ],
+        "default": "page.html",
+        include: [
+            "**/*.html", // normal include
+            { path: '/foo', target: 'foo.html' }, // proxy route to specified target
+            { path: '/foo/**', target: 'foo-sub.html' }, // proxy wildcard route to specified target
+            { path: '/bar', useDefault: true } // proxy route to default "page.html"
+        ],
         exclude: [ globA, globB, ... , globZ ]
     }
 }
