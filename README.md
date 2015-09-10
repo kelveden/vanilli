@@ -124,8 +124,8 @@ attempting to match against a stub. The option takes the form:
 ```js
 {
     static: {
-        root: "sut/static/root",
-        "default": "page.html",
+        root: "sut/static/root", // Root path for static content 
+        "default": "page.html", // Default document from root
         include: [
             "**/*.html", // normal include
             { path: '/foo', target: 'foo.html' }, // proxy route to specified target
