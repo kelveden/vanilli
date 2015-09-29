@@ -317,6 +317,19 @@ describe('Vanilli', function () {
             });
     });
 
+    it('can serve HEAD requests', function (done) {
+        vanilli.stub(
+            vanilli.onHead(dummyUrl)
+                .respondWith(123)
+        );
+
+        client.head(dummyUrl)
+            .end(function (err, res) {
+                expect(res).to.have.status(123);
+                done();
+            });
+    });
+
     describe('static content', function () {
         it('is served if request meets criteria of static filter', function (done) {
             client.get('/something.html')

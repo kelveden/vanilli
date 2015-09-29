@@ -46,6 +46,11 @@ describe("vanilli", function () {
             expect(stub.criteria.method).to.equal("DELETE");
         });
 
+        it("adds the HEAd HTTP method to the stub", function () {
+            var stub = vanilli.onHead("/some/url");
+            expect(stub.criteria.method).to.equal("HEAD");
+        });
+
         it("adds the specified URL criteria to the stub", function () {
             var stub = vanilli.onGet("/some/url");
             expect(stub.criteria.url).to.equal("/some/url");
