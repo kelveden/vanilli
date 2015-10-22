@@ -1,6 +1,6 @@
 {
   "name": "vanilli",
-  "version": "4.8.0",
+  "version": "4.8.1",
   "description": "Setup and serve stubs, fakes and expectations",
   "main": "./lib/vanilli.js",
   "bin": "./bin/vanilli",
