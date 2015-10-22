@@ -78,7 +78,21 @@ describe('Vanilli', function () {
             });
     });
 
-    it('serves up the stub matching the correct priority', function (done) {
+    it('serves up the stub matching the lowest priority', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/my/url", { priority: 1 }).respondWith(123),
+            vanilli.onGet("/my/url", { priority: 0 }).respondWith(234),
+            vanilli.onGet("/my/url", { priority: 2 }).respondWith(678)
+        );
+
+        client.get("/my/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(234);
+                done();
+            });
+    });
+
+    it('considers stub priority as 0 if not explicitly specified', function (done) {
         vanilli.stub(
             vanilli.onGet("/my/url", { priority: 1 }).respondWith(123),
             vanilli.onGet("/my/url").respondWith(234)
@@ -91,7 +105,7 @@ describe('Vanilli', function () {
             });
     });
 
-    it('serves up the last matched stub, rather than the first', function (done) {
+    it('serves up the last matched stub', function (done) {
         vanilli.stub(
             vanilli.onGet("/my/url").respondWith(123),
             vanilli.onGet("/my/url").respondWith(234)
@@ -100,6 +114,38 @@ describe('Vanilli', function () {
         client.get("/my/url")
             .end(function (err, res) {
                 expect(res).to.have.status(234);
+                done();
+            });
+    });
+
+    it('serves up the non-default matched stub', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/my/url").respondWith(234)
+        );
+
+        vanilli.stubDefault(
+            vanilli.onGet("/my/url").respondWith(123)
+        );
+
+        client.get("/my/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(234);
+                done();
+            });
+    });
+
+    it('serves up the default stub if no matches found', function (done) {
+        vanilli.stub(
+            vanilli.onGet("/another/url").respondWith(234)
+        );
+
+        vanilli.stubDefault(
+            vanilli.onGet("/my/url").respondWith(123)
+        );
+
+        client.get("/my/url")
+            .end(function (err, res) {
+                expect(res).to.have.status(123);
                 done();
             });
     });
