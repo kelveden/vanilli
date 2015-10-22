@@ -563,17 +563,18 @@ describe('Vanilli', function () {
 
             client.post('/my/url')
                 .send({ some: "content" })
-                .end();
-            client.post('/my/url')
-                .send({ some: "other content" })
                 .end(function () {
-                    var captures = vanilli.getCaptures(captureId);
+                    client.post('/my/url')
+                        .send({ some: "other content" })
+                        .end(function () {
+                            var captures = vanilli.getCaptures(captureId);
 
-                    expect(captures).to.have.length(2);
-                    expect(captures[0].body).to.deep.equal({ some: "content" });
-                    expect(captures[1].body).to.deep.equal({ some: "other content" });
+                            expect(captures).to.have.length(2);
+                            expect(captures[0].body).to.deep.equal({ some: "content" });
+                            expect(captures[1].body).to.deep.equal({ some: "other content" });
 
-                    done();
+                            done();
+                        });
                 });
         });
 

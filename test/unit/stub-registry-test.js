@@ -1,31 +1,31 @@
 /* jshint expr:true */
 var vanilliLogLevel = "fatal",
-    expect = require('chai').expect,
-    _ = require('lodash'),
-    config = {
-        log: require('bunyan').createLogger({
-            name: "vanilli-test",
-            level: vanilliLogLevel
-        })
-    };
+expect = require('chai').expect,
+_ = require('lodash'),
+config = {
+    log: require('bunyan').createLogger({
+        name: "vanilli-test",
+        level: vanilliLogLevel
+    })
+};
 
 describe('The stub registry', function () {
     var dummyStatus = 200,
-        dummyUrl = { regex: ".+" },
-        dummyPath = "/some/url",
-        dummyCriteria = {
-            url: dummyUrl,
-            method: 'GET'
+    dummyUrl = { regex: ".+" },
+    dummyPath = "/some/url",
+    dummyCriteria = {
+        url: dummyUrl,
+        method: 'GET'
+    },
+    dummyResponse = {
+        status: dummyStatus
+    },
+    dummyStub = {
+        criteria: {
+            url: dummyUrl
         },
-        dummyResponse = {
-            status: dummyStatus
-        },
-        dummyStub = {
-            criteria: {
-                url: dummyUrl
-            },
-            response: dummyResponse
-        };
+        response: dummyResponse
+    };
 
     function path(url) {
         return function () {
@@ -56,25 +56,24 @@ describe('The stub registry', function () {
         });
 
         it('can be used to add an expectation', function () {
-            var expectation = registry.addStub({
+            var expectation = registry.addExpectation({
                 criteria: dummyCriteria,
-                response: dummyResponse,
-                times: 1,
-                expect: true
+                response: dummyResponse
             });
 
             expect(registry.getById(expectation.id)).to.exist;
             expect(expectation.expect).to.be.true;
+            expect(expectation.times).to.equal(1);
         });
 
-        it('keeps the \'times\' of an expectation as 0 if specified', function () {
-            var expectation = registry.addStub({
+        it('keeps the \'times\' of an expectation if specified', function () {
+            var expectation = registry.addExpectation({
                 criteria: dummyCriteria,
                 response: dummyResponse,
-                times: 0
+                times: 666
             });
 
-            expect(registry.getById(expectation.id).times).to.equal(0);
+            expect(registry.getById(expectation.id).times).to.equal(666);
         });
 
         it('rejects a stub without criteria', function () {
@@ -139,13 +138,13 @@ describe('The stub registry', function () {
 
         it('generates a unique id for the added stub', function () {
             var dummyStub = {
-                    criteria: {
-                        url: dummyUrl
-                    },
-                    response: dummyResponse
+                criteria: {
+                    url: dummyUrl
                 },
-                id1 = registry.addStub(dummyStub).id,
-                id2 = registry.addStub(dummyStub).id;
+                response: dummyResponse
+            },
+            id1 = registry.addStub(dummyStub).id,
+            id2 = registry.addStub(dummyStub).id;
 
             expect(id1).to.exist;
             expect(id2).to.exist;
@@ -933,17 +932,17 @@ describe('The stub registry', function () {
         it('can capture a request', function () {
             // Given
             var body = {
-                    some: "data"
+                some: "data"
+            },
+            contentType = "my/contenttype",
+            stub = registry.addStub({
+                criteria: {
+                    method: 'POST',
+                    url: "/my/url"
                 },
-                contentType = "my/contenttype",
-                stub = registry.addStub({
-                    criteria: {
-                        method: 'POST',
-                        url: "/my/url"
-                    },
-                    response: dummyResponse,
-                    captureId: "mycapture"
-                });
+                response: dummyResponse,
+                captureId: "mycapture"
+            });
 
             // When
             expect(registry.findMatchFor({
