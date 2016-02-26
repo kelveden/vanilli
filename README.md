@@ -1,9 +1,9 @@
 # vanilli
-[![Build Status](https://travis-ci.org/mixradio/vanilli.png?branch=master)](https://travis-ci.org/mixradio/vanilli)
+[![Build Status](https://travis-ci.org/kelveden/vanilli.png?branch=master)](https://travis-ci.org/kelveden/vanilli)
 
 Nodejs library that allows managing of a RESTful server for storing, matching and verifying stubs/expectations from a test suite.
 
-[API](https://github.com/mixradio/vanilli/wiki/API)
+[API](https://github.com/kelveden/vanilli/wiki/API)
 
 ## How it works
 Vanilli is designed to act as a "fake" version of the REST services that your SUT (System Under Test) depends on. It sits running
