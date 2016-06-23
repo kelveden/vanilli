@@ -447,7 +447,7 @@ describe('Vanilli', function () {
                 .buffer()
                 .end(function (err, res) {
                     expect(res).to.have.header('content-type', "application/javascript");
-                    expect(res.text).to.equal("mycallback(\"somecontent\");");
+                    expect(res.text).to.equal("typeof mycallback === 'function' && mycallback(\"somecontent\");");
                     done();
                 });
         });
@@ -466,7 +466,7 @@ describe('Vanilli', function () {
                 .buffer()
                 .end(function (err, res) {
                     expect(res).to.have.header('content-type', "application/javascript");
-                    expect(res.text).to.equal("mycallback({\"some\":\"content\"});");
+                    expect(res.text).to.equal("typeof mycallback === 'function' && mycallback({\"some\":\"content\"});");
                     done();
                 });
         });

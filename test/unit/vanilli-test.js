@@ -327,7 +327,7 @@ describe("vanilli", function () {
                 .respondWith(123)
                 .anyTimes();
 
-            expect(stub.times).to.be.undefined();
+            expect(stub.times).to.be.undefined;
         });
 
         it("assigns specified capture id to stub", function () {
@@ -346,7 +346,7 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123));
 
             expect(stubs).to.have.length(1);
-            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].id).not.to.be.undefined;
         });
 
         it("can be added in one go", function () {
@@ -356,9 +356,9 @@ describe("vanilli", function () {
                     vanilli.onGet("/another/url").respondWith(456));
 
             expect(stubs).to.have.length(2);
-            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].id).not.to.be.undefined;
             expect(stubs[ 0 ].criteria.url).to.equal("/some/url");
-            expect(stubs[ 1 ].id).not.to.be.undefined();
+            expect(stubs[ 1 ].id).not.to.be.undefined;
             expect(stubs[ 1 ].criteria.url).to.equal("/another/url");
         });
 
@@ -385,8 +385,8 @@ describe("vanilli", function () {
                     vanilli.onGet("/some/url").respondWith(123));
 
             expect(stubs).to.have.length(1);
-            expect(stubs[ 0 ].id).not.to.be.undefined();
-            expect(stubs[ 0 ].expect).to.be.true();
+            expect(stubs[ 0 ].id).not.to.be.undefined;
+            expect(stubs[ 0 ].expect).to.be.true;
         });
 
         it("can be added in one go", function () {
@@ -396,12 +396,12 @@ describe("vanilli", function () {
                     vanilli.onGet("/another/url").respondWith(456));
 
             expect(stubs).to.have.length(2);
-            expect(stubs[ 0 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].id).not.to.be.undefined;
             expect(stubs[ 0 ].criteria.url).to.equal("/some/url");
-            expect(stubs[ 0 ].expect).to.be.true();
-            expect(stubs[ 1 ].id).not.to.be.undefined();
+            expect(stubs[ 0 ].expect).to.be.true;
+            expect(stubs[ 1 ].id).not.to.be.undefined;
             expect(stubs[ 1 ].criteria.url).to.equal("/another/url");
-            expect(stubs[ 1 ].expect).to.be.true();
+            expect(stubs[ 1 ].expect).to.be.true;
         });
 
         it("anyTimes is ignored", function () {
