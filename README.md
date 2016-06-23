@@ -20,7 +20,9 @@ Your SUT is then configured to call vanilli instead of the REST services it usua
 Vanilli configuration can be specified when initalising:
 
 ```js
-var vanilli = require('vanilli').init(config);
+var vanilli = require('vanilli');
+...
+vanilli.listen(port, config);
 ```
 
 `config` is an optional parameter. All `config` options are given below with their default values:
@@ -36,7 +38,7 @@ var vanilli = require('vanilli').init(config);
 Typical usage:
 
 ```js
-var vanilli = require('vanilli').init();
+var vanilli = require('vanilli');
 
 describe('My SUT', function () {
     before(function () {

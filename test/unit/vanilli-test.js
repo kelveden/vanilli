@@ -1,21 +1,13 @@
+/* jshint expr: true */
+
 var expect = require('chai').expect,
     sinon = require('sinon'),
-    vanilli = require('../../lib/vanilli').init({ logLevel: "error" });
+    vanilli = require('../../lib/vanilli');
 
 describe("vanilli", function () {
 
     var dummyUrl = "/some/url",
         dummyStatus = 234;
-
-    it("exposes itself as a singleton", function () {
-        expect(require('../../lib/vanilli').instance())
-            .to.equal(vanilli);
-    });
-
-    it("creates new singleton if re-initialised", function () {
-        expect(require('../../lib/vanilli').init())
-            .to.not.equal(vanilli);
-    });
 
     describe("listening", function () {
         it("throws an error if no port is specified", function () {

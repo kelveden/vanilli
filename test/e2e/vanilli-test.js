@@ -1,13 +1,5 @@
 /* jshint expr:true */
-var vanilli = require('../../lib/vanilli').init({
-        logLevel: "error",
-        static: {
-            root: "test/e2e/static",
-            "default": "something.html",
-            include: [ "**/*.html", { path: '/foo', target: 'foo.html' }, { path: '/bar', useDefault: true } ],
-            exclude: [ "**/*.xxx" ]
-        }
-    }),
+var vanilli = require('../../lib/vanilli'),
     chai = require('chai'),
     expect = require('chai').expect,
     portfinder = require('portfinder');
@@ -19,6 +11,15 @@ chai.use(require('chai-http'));
 
 describe('Vanilli', function () {
     var client,
+        config = {
+            logLevel: "error",
+            static: {
+                root: "test/e2e/static",
+                "default": "something.html",
+                include: [ "**/*.html", { path: '/foo', target: 'foo.html' }, { path: '/bar', useDefault: true } ],
+                exclude: [ "**/*.xxx" ]
+            }
+        },
         dummyStatus = 666,
         dummyUrl = "/some/url";
 
@@ -27,7 +28,7 @@ describe('Vanilli', function () {
             if (err) {
                 done(err);
             } else {
-                vanilli.listen(port);
+                vanilli.listen(port, config);
                 client = chai.request("http://localhost:" + port);
                 done();
             }
