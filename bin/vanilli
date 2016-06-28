@@ -36,13 +36,13 @@ if (!fs.existsSync(dir)) {
     dir = path.join('..', 'lib');
 }
 
-require(path.join(dir, 'vanilli'))
-    .init({ logLevel: logLevel,
-            static: {
-                root: staticRoot,
-                default: staticDefault,
-                include: staticInclude,
-                exclude: staticExclude
-            }
-     })
-    .listen(port);
+var vanilli = require(path.join(dir, 'vanilli'));
+vanilli.listen(port, {
+    logLevel: logLevel,
+    static: {
+        root: staticRoot,
+        default: staticDefault,
+        include: staticInclude,
+        exclude: staticExclude
+    }
+});
