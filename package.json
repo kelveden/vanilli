@@ -30,10 +30,10 @@
     "bunyan": "1.8.1",
     "lodash": "4.13.1",
     "minimatch": "3.0.2",
-    "node-uuid": "1.4.7",
     "optimist": "0.6.1",
     "ramda": "0.21.0",
-    "restify": "4.1.1"
+    "restify": "4.1.1",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "better-stack-traces": "1.1.0",
