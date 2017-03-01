@@ -531,6 +531,20 @@ describe('The stub registry', function () {
             expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
         });
 
+        it('will only match a stub the specified number of times', function () {
+            registry.addStub({
+                criteria: {
+                    url: "my/url",
+                    method: 'GET'
+                },
+                response: dummyResponse,
+                times: 1
+            });
+
+            expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.exist;
+            expect(registry.findMatchFor({ path: path("my/url"), method: 'GET' })).to.not.exist;
+        });
+
         it('will match an expectation any number of times', function () {
             registry.addStub({
                 criteria: {

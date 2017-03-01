@@ -99,7 +99,7 @@ For vanilli, an "expectation" is simply a specialized stub. In short: a stub MIG
 expectation MUST be matched.
 
 A stub...
- * CAN be matched UP TO the specified number of times (1 if not explicitly specified).
+ * CAN be matched UP TO the specified number of times (any number of times if not explicitly specified).
  * WILL cause an error if matched too many times.
  * WILL NOT cause an error if matched too few times.
 
