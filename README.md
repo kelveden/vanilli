@@ -110,7 +110,7 @@ An expectation...
 
 So, if you want to assert on the actual calls that your SUT is using use an expectation; otherwise use a stub.
 
-Note that an expectation will actually silently match any number of times _regardless of the value of `times`_ - it is only at the point of verification that any discrepancy is highlighted. So, it is important to include a call to [verify][(https://github.com/kelveden/vanilli/wiki/API#vanilliverify) in your "after each" handler in your test suite.
+Note that an expectation will actually silently match any number of times _regardless of the value of `times`_ - it is only at the point of verification that any discrepancy is highlighted. So, it is important to include a call to [verify](https://github.com/kelveden/vanilli/wiki/API#vanilliverify) in your "after each" handler in your test suite.
 
 *REMEMBER*: The more vanilli expectations you add to your tests the more brittle they will get:
 consider using stubs as your first choice.
