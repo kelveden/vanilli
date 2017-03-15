@@ -105,11 +105,12 @@ A stub...
 
 An expectation...
  * MUST be matched the specified number of times (1 if not explicitly specified).
- * WILL cause an error if matched too many times.
- * WILL cause an error if matched too few times.
+ * WILL cause a verification error if matched too many times.
+ * WILL cause a verification if matched too few times.
 
-So, if you want to assert on the actual calls that your SUT is using use an expectation;
-otherwise use a stub.
+So, if you want to assert on the actual calls that your SUT is using use an expectation; otherwise use a stub.
+
+Note that an expectation will actually silently match any number of times _regardless of the value of `times`_ - it is only at the point of verification that any discrepancy is highlighted. So, it is important to include a call to `verifyExpectations` in your "after each" handler in your tests.
 
 *REMEMBER*: The more vanilli expectations you add to your tests the more brittle they will get:
 consider using stubs as your first choice.
